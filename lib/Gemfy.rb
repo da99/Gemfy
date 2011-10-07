@@ -45,6 +45,7 @@ class Gemfy
     write 'spec--main.rb'
     write 'spec--helper.rb'
     shell "cd #{folder} && git remote add gitorius git@gitorious.org:mu-gems/#{name}.git"
+    add_depend 'bacon'
   end
   
   def folder
@@ -104,11 +105,32 @@ class Gemfy
     contents
   end
   
-  def template name
-    dir = File.dirname(File.expand_path(__FILE__))
-    path = File.join( dir, 'templates', name )
+  def template filename
+    path = File.join( File.dirname(__FILE__), 'templates', filename )
     raise(Missing_File, "#{path}") if !File.file?(path)
     path
+  end
+  
+  def add_depend gem_name
+    file = (folder + "/#{name}.gemspec")
+    orig = File.read(file).strip.split("\n")
+    found = false
+    contents = []
+    orig.each { |line|
+      if line[%r!(.+)\.require_paths!]
+        found = true
+        contents << "  #{$1}.add_development_dependency 'bacon'"
+      end
+      contents << line
+    }
+    
+    if not found
+      raise "Could not find .require_paths as a starting point."
+    end
+    
+    File.open(file, 'w') { |io|
+      io.write contents.join("\n")
+    }
   end
 
 end # === class Gemfy

@@ -21,7 +21,7 @@ describe "Update a gem version" do
     b.shell('git status').should.be == text
   end
   
-  it 'failes to bump version if Bacon specs are not met.' do
+  it 'fails to bump version if Bacon specs are not met.' do
     b = BOX.down('joey')
     File.open(b.dir + '/spec/tests/fail.rb', 'w') { |io|
       io.write %~
