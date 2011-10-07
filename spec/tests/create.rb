@@ -29,6 +29,11 @@ describe "Create a gem" do
     .message.should.match %r!tim \(Gemfy\:\:Already_Exists\)!
   end
   
+  it 'adds Rake as a dependency' do
+    b = BOX.down('tim')
+    b.read("tim.gemspec")[%r!add_development_dependency .rake.!]
+    .should.not.be == nil
+  end  
   it 'adds Bacon as a dependency' do
     b = BOX.down('tim')
     b.read("tim.gemspec")[%r!add_development_dependency .bacon.!]

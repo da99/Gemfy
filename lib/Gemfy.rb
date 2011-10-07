@@ -67,6 +67,7 @@ class Gemfy
     write 'spec--helper.rb'
     shell "cd #{folder} && git remote add gitorius git@gitorious.org:mu-gems/#{name}.git"
     add_depend 'bacon'
+    add_depend 'rake'
   end
   
   def folder
@@ -94,7 +95,7 @@ class Gemfy
   end
 
   def testing?
-    folder !~ %r!^/tmp!
+    folder =~ %r!^/tmp!
   end
 
   def version_bump type
@@ -126,7 +127,23 @@ class Gemfy
     File.open(file, 'w') { |io|
       io.write contents.sub( pattern, new_ver )
     }
-    shell "cd #{folder} && git add . && git add #{version_rb} && git commit -m \"Bump version #{type}: #{new_ver}\" && git tag v#{new_ver}"
+    results = shell "cd #{folder} && git add . && git add #{version_rb} && git commit -m \"Bump version #{type}: #{new_ver}\" && git tag v#{new_ver}"
+    
+    if testing?
+      return results
+    end
+    
+    gem_pkg = "#{name}-#{new_ver}.gem"
+    mu_gems = File.expand_path("~/MyLife/apps/SITES/mu-gems")
+    
+    shell "cd #{folder} && rake build && cp pkg/#{gem_pkg} #{mu_gems}/vendor/cache/#{gem_pkg}"
+    
+    if nothing_to_commit?(mu_gems)
+      shell "cd #{mu_gems} && bundle update && git add . && git commit -m 'Added gem: #{gem_pkg}' "
+      shell "cd #{mu_gems} && git push heroku"
+    else
+      raise "Commits pending in #{mu_gems}"
+    end
   end
   
   def write filename
