@@ -18,7 +18,8 @@ describe "Create a gem" do
   end
   
   it 'adds a gitorius remote to git repo' do
-    BOX.down('tim').shell("git remote -v").should == "gitorius\tgit@gitorious.org:mu-gems/tim.git (fetch)\ngitorius\tgit@gitorious.org:mu-gems/tim.git (push)"
+    BOX.down('tim').shell("git remote -v")
+    .should == "gitorius\tgit@gitorious.org:mu-gems/tim.git (fetch)\ngitorius\tgit@gitorious.org:mu-gems/tim.git (push)"
   end
   
   it 'raises Already_Exists when folder exists' do

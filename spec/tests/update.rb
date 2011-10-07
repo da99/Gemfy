@@ -21,4 +21,21 @@ describe "Update a gem version" do
     b.shell('git status').should.be == text
   end
   
+  it 'failes to bump version if Bacon specs are not met.' do
+    b = BOX.down('joey')
+    File.open(b.dir + '/spec/tests/fail.rb', 'w') { |io|
+      io.write %~
+        describe 'fails' do
+          it 'fails' do
+            false.should.be == true
+          end
+        end
+      ~
+    }
+    lambda {
+      b.bin('bump_minor')
+    }.should.raise(RuntimeError)
+    .message.should.match %r!\[FAILED\]\n\nBacon::Error: false.==\(true\) failed\n\t/tmp/Gemfy/[a-zA-Z0-9\-\_]+/joey/spec/tests/fail.rb:4!
+  end
+  
 end # === describe Update a gem version

@@ -28,11 +28,11 @@ class Gemfy
   end
   
   def shell cmd
-    val = `#{cmd}`.to_s.strip
-    if $?.exitstatus != 0
-      raise Failed_Shell_Command, "#{cmd}"
-    end
+    val = `#{cmd} 2>&1`.to_s.strip
     puts cmd
+    if $?.exitstatus != 0
+      raise Failed_Shell_Command, "Results:\n#{val}"
+    end
     puts val
     val
   end
@@ -64,6 +64,8 @@ class Gemfy
   end
 
   def version_bump type
+    shell "cd #{folder} && bundle exec ruby spec/main.rb"
+
     version_rb = "lib/#{name}/version.rb"
     file = (File.expand_path "#{folder}/#{version_rb}")
     pattern = %r!\d+.\d+.\d+!
@@ -91,11 +93,11 @@ class Gemfy
     shell "cd #{folder} && git add . && git add #{version_rb} && git status"
   end
   
-  def write name
-    templ = File.read(template(name))
+  def write filename
+    templ = File.read(template(filename))
     contents = templ.gsub('{{name}}', name)
     
-    File.open("#{folder}/#{name.gsub('--', '/')}", 'w') { |io|
+    File.open("#{folder}/#{filename.gsub('--', '/')}", 'w') { |io|
       io.write contents
     }
     
