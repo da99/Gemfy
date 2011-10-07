@@ -5,10 +5,14 @@
 
 require "Gemfy"
 
-if ARGV.first == 'create'
+case ARGV.first
+when 'create'
   raise "Too many arguments: #{ARGV}" unless ARGV.size == 2
   g = Gemfy.new(ARGV[1])
   g.create
+when 'all'
+  ARGV.shift
+  Gemfy.all *ARGV
 else
   g = Gemfy.new(File.basename(File.expand_path('.')))
   g.send *ARGV

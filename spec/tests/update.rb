@@ -1,24 +1,45 @@
 
 describe "Update a gem version" do
-  
-  it 'bumps patch' do
+
+  it "won't tag git if there are pending files to be committed." do
     BOX.bin "create joey"
+    b = BOX.down('joey')
+    lambda {
+      b.shell "echo 'test' > test.rb"
+      b.bin "bump_patch"
+    }.should.raise(RuntimeError)
+    .message.should.match %r!Commit first. \(Gemfy::Files_Uncomitted\)!
+  end
+  
+  it 'tags git after bump' do
+    b = BOX.down('joey') 
+    b.shell "git add . && git add -u && git commit -m \"First commit.\""
+    
+    b.bin 'bump_minor'
+    b.shell( "git tag -l" ).should.be == "0.1.0"
+  end
+  
+  it 'commits after bump' do
+    b = BOX.down('joey') 
+    b.bin 'bump_minor'
+    b.shell("git status")['nothing to commit'].should.be == 'nothing to commit'
+  end
+
+  it 'bumps patch' do
     b = BOX.down('joey') 
     b.bin "bump_patch"
-    b.read("lib/joey/version.rb")[/.\d.\d.\d./].should.match %r!.0.0.2.!
+    b.read("lib/joey/version.rb")[/.\d.\d.\d./].should.match %r!.0.2.1.!
   end
 
   it 'bumps minor' do
     b = BOX.down('joey')
     b.bin "bump_minor"
-    b.read("lib/joey/version.rb")[/.\d.\d.\d./].should.match %r!.0.1.0.!
+    b.read("lib/joey/version.rb")[/.\d.\d.\d./].should.match %r!.0.3.0.!
   end
-  
+
   it 'adds version.rb to git after bump' do
-    text = %*# On branch master\n#\n# Initial commit\n#\n# Changes to be committed:\n#   (use \"git rm --cached <file>...\" to unstage)\n#\n#\tnew file:   .gitignore\n#\tnew file:   Gemfile\n#\tnew file:   Rakefile\n#\tnew file:   joey.gemspec\n#\tnew file:   lib/joey.rb\n#\tnew file:   lib/joey/version.rb\n#\tnew file:   spec/helper.rb\n#\tnew file:   spec/main.rb\n#*
     b = BOX.down('joey')
-    b.bin( "bump_minor" )
-    b.shell('git status').should.be == text
+    b.shell('git status')['nothing to commit'].should.be == 'nothing to commit'
   end
   
   it 'fails to bump version if Bacon specs are not met.' do
@@ -36,6 +57,16 @@ describe "Update a gem version" do
       b.bin('bump_minor')
     }.should.raise(RuntimeError)
     .message.should.match %r!\[FAILED\]\n\nBacon::Error: false.==\(true\) failed\n\t/tmp/Gemfy/[a-zA-Z0-9\-\_]+/joey/spec/tests/fail.rb:4!
+  end
+  
+  it 'applies command to all gems' do
+    BOX.bin 'create joey2'
+    b1 = BOX.down('joey')
+    b2 = BOX.down('joey2')
+    
+    BOX.bin 'all add_depend rest-client'
+    b1.read('joey.gemspec')['rest-client'].should.be == 'rest-client'
+    b2.read('joey2.gemspec')['rest-client'].should.be == 'rest-client'
   end
   
 end # === describe Update a gem version

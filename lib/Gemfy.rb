@@ -6,6 +6,20 @@ class Gemfy
   Failed_Shell_Command = Class.new(RuntimeError)
   Already_Exists       = Class.new(RuntimeError)
   Invalid_Name         = Class.new(RuntimeError)
+  Files_Uncomitted     = Class.new(RuntimeError)
+
+  class << self
+    
+    def all *raw_args
+      Dir.glob('*/*.gemspec') { |file|
+        dir = File.dirname(File.expand_path(file))
+        name = File.basename(dir)
+        g = Gemfy.new(name)
+        g.send *(raw_args.flatten)
+      }
+    end
+
+  end # === class << self
 
   attr_reader :name, :current_folder
   def initialize raw_name
@@ -66,7 +80,9 @@ class Gemfy
 
   def version_bump type
     shell "cd #{folder} && bundle exec ruby spec/main.rb"
-
+    if not shell("cd #{folder} && git status")['nothing to commit (working directory clean)']
+      raise Files_Uncomitted, "Commit first."
+    end
     version_rb = "lib/#{name}/version.rb"
     file = (File.expand_path "#{folder}/#{version_rb}")
     pattern = %r!\d+.\d+.\d+!
@@ -91,7 +107,7 @@ class Gemfy
     File.open(file, 'w') { |io|
       io.write contents.sub( pattern, new_ver )
     }
-    shell "cd #{folder} && git add . && git add #{version_rb} && git status"
+    shell "cd #{folder} && git add . && git add #{version_rb} && git commit -m \"Bump version #{type}: #{new_ver}\" && git tag #{new_ver}"
   end
   
   def write filename
