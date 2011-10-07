@@ -64,9 +64,9 @@ describe "Update a gem version" do
     b1 = BOX.down('joey')
     b2 = BOX.down('joey2')
     
-    BOX.bin 'all add_depend rest-client'
-    b1.read('joey.gemspec')['rest-client'].should.be == 'rest-client'
-    b2.read('joey2.gemspec')['rest-client'].should.be == 'rest-client'
+    BOX.bin 'all add_depend rEstEr'
+    b1.read('joey.gemspec')['rEstEr'].should.be == 'rEstEr'
+    b2.read('joey2.gemspec')['rEstEr'].should.be == 'rEstEr'
   end
   
   it 'raises Invalid_Command if :bump_minor is applied to all gems' do
@@ -74,6 +74,13 @@ describe "Update a gem version" do
       BOX.bin("all bump_minor")
     }.should.raise(RuntimeError)
     .message.should.match %r!:bump_minor \(Gemfy::Invalid_Command\)!
+  end
+  
+  it 'does not add another dependency if it already exists' do
+    b = BOX.down('joey')
+    b.bin 'add_depend rEstEr'
+    b.bin 'add_depend rEstEr'
+    b.read('joey.gemspec').scan(%r!rEstEr!).should == ['rEstEr']
   end
   
 end # === describe Update a gem version

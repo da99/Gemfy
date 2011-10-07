@@ -136,13 +136,16 @@ class Gemfy
   
   def add_depend gem_name
     file = (folder + "/#{name}.gemspec")
-    orig = File.read(file).strip.split("\n")
+    orig = File.read(file).strip
     found = false
     contents = []
-    orig.each { |line|
+    orig.split("\n").each { |line|
       if line[%r!(.+)\.require_paths!]
         found = true
-        contents << "  #{$1}.add_development_dependency 'bacon'"
+        obj = $1
+        if not orig[%r!dependency\s+.#{gem_name}[\"\']!]
+          contents << "  #{$1}.add_development_dependency '#{gem_name}'"
+        end
       end
       contents << line
     }

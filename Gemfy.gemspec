@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.authors     = ["da99"]
   s.email       = ["i-hate-spam-45671204@mailinator.com"]
   s.homepage    = ""
-  s.summary     = %q{Gem creat/update for megauni gems.}
+  s.summary     = %q{Gem create/update for megauni gems.}
   s.description = %q{Personal gem creator for megauni-related gems.}
 
   s.add_development_dependency 'bacon'
