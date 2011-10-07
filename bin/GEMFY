@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+# -*- ruby -*-
+# 
+
+
+require "Gemfy"
+
+if ARGV.first == 'create'
+  raise "Too many arguments: #{ARGV}" unless ARGV.size == 2
+  g = Gemfy.new(ARGV[1])
+  g.create
+else
+  g = Gemfy.new(File.basename(File.expand_path('.')))
+  g.send *ARGV
+end
