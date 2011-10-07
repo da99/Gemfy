@@ -16,7 +16,7 @@ describe "Update a gem version" do
     b.shell "git add . && git add -u && git commit -m \"First commit.\""
     
     b.bin 'bump_minor'
-    b.shell( "git tag -l" ).should.be == "0.1.0"
+    b.shell( "git tag -l" ).should.be == "v0.1.0"
   end
   
   it 'commits after bump' do

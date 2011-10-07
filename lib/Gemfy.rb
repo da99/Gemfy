@@ -85,9 +85,21 @@ class Gemfy
     version_bump :minor
   end
 
+  def nothing_to_commit? dir
+    !!( shell("cd #{folder} && git status")['nothing to commit (working directory clean)'] )
+  end
+  
+  def commit_pending? dir
+    !nothing_to_commit?(dir)
+  end
+
+  def testing?
+    folder !~ %r!^/tmp!
+  end
+
   def version_bump type
     shell "cd #{folder} && bundle exec ruby spec/main.rb"
-    if not shell("cd #{folder} && git status")['nothing to commit (working directory clean)']
+    if commit_pending?(folder)
       raise Files_Uncomitted, "Commit first."
     end
     version_rb = "lib/#{name}/version.rb"
@@ -114,7 +126,7 @@ class Gemfy
     File.open(file, 'w') { |io|
       io.write contents.sub( pattern, new_ver )
     }
-    shell "cd #{folder} && git add . && git add #{version_rb} && git commit -m \"Bump version #{type}: #{new_ver}\" && git tag #{new_ver}"
+    shell "cd #{folder} && git add . && git add #{version_rb} && git commit -m \"Bump version #{type}: #{new_ver}\" && git tag v#{new_ver}"
   end
   
   def write filename
