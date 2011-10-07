@@ -69,4 +69,11 @@ describe "Update a gem version" do
     b2.read('joey2.gemspec')['rest-client'].should.be == 'rest-client'
   end
   
+  it 'raises Invalid_Command if :bump_minor is applied to all gems' do
+    lambda {
+      BOX.bin("all bump_minor")
+    }.should.raise(RuntimeError)
+    .message.should.match %r!:bump_minor \(Gemfy::Invalid_Command\)!
+  end
+  
 end # === describe Update a gem version

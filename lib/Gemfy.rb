@@ -7,16 +7,23 @@ class Gemfy
   Already_Exists       = Class.new(RuntimeError)
   Invalid_Name         = Class.new(RuntimeError)
   Files_Uncomitted     = Class.new(RuntimeError)
+  Invalid_Command      = Class.new(RuntimeError)
 
   class << self
     
     def all *raw_args
+      args = raw_args.flatten
+      case args.first.to_s
+      when 'add_depend'
       Dir.glob('*/*.gemspec') { |file|
         dir = File.dirname(File.expand_path(file))
         name = File.basename(dir)
         g = Gemfy.new(name)
-        g.send *(raw_args.flatten)
+        g.send *args
       }
+      else
+        raise Invalid_Command, ":#{args.first}"
+      end
     end
 
   end # === class << self
