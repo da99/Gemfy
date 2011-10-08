@@ -131,7 +131,9 @@ class Gemfy
     repo.commit("Bump version #{type}: #{new_ver}")
     repo.tag("v#{new_ver}")
     
-    return if testing?
+    return if testing? || name == 'Gemfy'
+    
+    repo.push('gitorius')
       
     mu_gems = shell("cd ../../SITES/mu-gems && pwd")
     
