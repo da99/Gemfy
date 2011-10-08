@@ -94,10 +94,13 @@ class Gemfy
     folder =~ %r!^/tmp!
   end
 
+  def repo
+    @repo ||= Git_Repo.new(folder)
+  end
+
   def version_bump type
     shell "cd #{folder} && bundle exec ruby spec/main.rb"
     
-    repo = Git_Repo.new(folder)
     if repo.staged?
       raise Files_Uncomitted, "Commit first."
     end
@@ -132,7 +135,10 @@ class Gemfy
     repo.tag("v#{new_ver}")
     
     return if testing? || name == 'Gemfy'
-    
+    upload
+  end
+  
+  def upload
     repo.push('gitorius')
       
     mu_gems = shell("cd ../../SITES/mu-gems && pwd")
