@@ -137,12 +137,14 @@ class Gemfy
       
     mu_gems = shell("cd ../../SITES/mu-gems && pwd")
     
-    m = Git_Repo.new(mu_gems)
-    m.reset
-    m.bundle_update
-    m.add( "Gemfile.lock " )
-    m.commit("Added gem: #{name}")
-    m.push("heroku")
+    if File.read("#{mu_gems}/Gemfile")[%r!^\s{0,}gem\s+["']{1}#{name}["']{1}!]
+      m = Git_Repo.new(mu_gems)
+      m.reset
+      m.bundle_update
+      m.add( "Gemfile.lock " )
+      m.commit("Updated gem: #{name}")
+      m.push("heroku")
+    end
   end
   
   def write filename
