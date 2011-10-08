@@ -164,7 +164,7 @@ class Gemfy
       raise "There are #{$1}s in .gemspec"
     end
     
-    shell "gem build #{name}"
+    shell "gem build #{name}.gemspec"
     shell "gem push #{name}-#{version}.gem"
     
     true
