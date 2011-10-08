@@ -133,7 +133,7 @@ class Gemfy
     
     return if testing?
       
-    mu_gems = shell("mu_gems && pwd")
+    mu_gems = shell("cd ../../SITES/mu-gems && pwd")
     
     m = Git_Repo.new(mu_gems)
     m.reset
