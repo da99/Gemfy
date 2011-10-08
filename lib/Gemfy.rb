@@ -1,4 +1,5 @@
 require "Gemfy/version"
+require 'Gemfy/Git_Repo'
 class Gemfy
 
   Missing_Value        = Class.new(RuntimeError)
@@ -86,13 +87,13 @@ class Gemfy
     version_bump :minor
   end
 
-  def nothing_to_commit? dir
-    !!( shell("cd #{folder} && git status")['nothing to commit (working directory clean)'] )
-  end
-  
-  def commit_pending? dir
-    !nothing_to_commit?(dir)
-  end
+  # def nothing_to_commit? dir
+  #   !!( shell("cd #{folder} && git status")['nothing to commit (working directory clean)'] )
+  # end
+  # 
+  # def commit_pending? dir
+  #   !nothing_to_commit?(dir)
+  # end
 
   def testing?
     folder =~ %r!^/tmp!
@@ -100,9 +101,11 @@ class Gemfy
 
   def version_bump type
     shell "cd #{folder} && bundle exec ruby spec/main.rb"
-    if commit_pending?(folder)
+    
+    if Git_Repo.new(folder).staged?
       raise Files_Uncomitted, "Commit first."
     end
+    
     version_rb = "lib/#{name}/version.rb"
     file = (File.expand_path "#{folder}/#{version_rb}")
     pattern = %r!\d+.\d+.\d+!
@@ -134,16 +137,14 @@ class Gemfy
     end
     
     gem_pkg = "#{name}-#{new_ver}.gem"
-    mu_gems = File.expand_path("~/MyLife/apps/SITES/mu-gems")
+    mu_gems = shell("mu_gems && pwd")
     
-    shell "cd #{folder} && rake build && cp pkg/#{gem_pkg} #{mu_gems}/vendor/cache/#{gem_pkg}"
-    
-    if nothing_to_commit?(mu_gems)
-      shell "cd #{mu_gems} && bundle update && git add . && git commit -m 'Added gem: #{gem_pkg}' "
-      shell "cd #{mu_gems} && git push heroku"
-    else
-      raise "Commits pending in #{mu_gems}"
-    end
+    r = Git_Repo.new(mu_gems)
+    r.reset
+    r.bundle_update
+    r.add( "Gemfile.lock " )
+    r.commit("Added gem: #{name}")
+    r.push("heroku")
   end
   
   def write filename
