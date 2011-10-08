@@ -69,6 +69,9 @@ class Gemfy
     shell "cd #{folder} && git remote add gitorius git@gitorious.org:mu-gems/#{name}.git"
     add_depend 'bacon'
     add_depend 'rake'
+    if not testing?
+      shell "cd #{folder} && bundle update"
+    end
   end
   
   def folder
@@ -87,14 +90,6 @@ class Gemfy
     version_bump :minor
   end
 
-  # def nothing_to_commit? dir
-  #   !!( shell("cd #{folder} && git status")['nothing to commit (working directory clean)'] )
-  # end
-  # 
-  # def commit_pending? dir
-  #   !nothing_to_commit?(dir)
-  # end
-
   def testing?
     folder =~ %r!^/tmp!
   end
@@ -102,7 +97,8 @@ class Gemfy
   def version_bump type
     shell "cd #{folder} && bundle exec ruby spec/main.rb"
     
-    if Git_Repo.new(folder).staged?
+    repo = Git_Repo.new(folder)
+    if repo.staged?
       raise Files_Uncomitted, "Commit first."
     end
     
@@ -130,21 +126,21 @@ class Gemfy
     File.open(file, 'w') { |io|
       io.write contents.sub( pattern, new_ver )
     }
-    results = shell "cd #{folder} && git add . && git add #{version_rb} && git commit -m \"Bump version #{type}: #{new_ver}\" && git tag v#{new_ver}"
     
-    if testing?
-      return results
-    end
+    repo.update
+    repo.commit("Bump version #{type}: #{new_ver}")
+    repo.tag("v#{new_ver}")
     
-    gem_pkg = "#{name}-#{new_ver}.gem"
+    return if testing?
+      
     mu_gems = shell("mu_gems && pwd")
     
-    r = Git_Repo.new(mu_gems)
-    r.reset
-    r.bundle_update
-    r.add( "Gemfile.lock " )
-    r.commit("Added gem: #{name}")
-    r.push("heroku")
+    m = Git_Repo.new(mu_gems)
+    m.reset
+    m.bundle_update
+    m.add( "Gemfile.lock " )
+    m.commit("Added gem: #{name}")
+    m.push("heroku")
   end
   
   def write filename
@@ -174,7 +170,7 @@ class Gemfy
         found = true
         obj = $1
         if not orig[%r!dependency\s+.#{gem_name}[\"\']!]
-          contents << "  #{$1}.add_development_dependency '#{gem_name}'"
+          contents << "  #{obj}.add_development_dependency '#{gem_name}'"
         end
       end
       contents << line

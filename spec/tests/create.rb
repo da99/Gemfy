@@ -22,6 +22,12 @@ describe "Create a gem" do
     .should == "gitorius\tgit@gitorious.org:mu-gems/tim.git (fetch)\ngitorius\tgit@gitorious.org:mu-gems/tim.git (push)"
   end
   
+  it 'adds a gitorius remote by lower-casing the name' do
+    BOX.bin('create TIMM')
+    BOX.down('TIMM').shell("git remote -v")
+    .should == "gitorius\tgit@gitorious.org:mu-gems/TIMM.git (fetch)\ngitorius\tgit@gitorious.org:mu-gems/TIMM.git (push)"
+  end
+  
   it 'raises Already_Exists when folder exists' do
     lambda {
       BOX.bin('create tim')
@@ -31,12 +37,12 @@ describe "Create a gem" do
   
   it 'adds Rake as a dependency' do
     b = BOX.down('tim')
-    b.read("tim.gemspec")[%r!add_development_dependency .rake.!]
+    b.read("tim.gemspec")[%r!\w\.add_development_dependency .rake.!]
     .should.not.be == nil
   end  
   it 'adds Bacon as a dependency' do
     b = BOX.down('tim')
-    b.read("tim.gemspec")[%r!add_development_dependency .bacon.!]
+    b.read("tim.gemspec")[%r!\w\.add_development_dependency .bacon.!]
     .should.not.be == nil
   end
   

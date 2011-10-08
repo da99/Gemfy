@@ -14,6 +14,19 @@ class Git_Repo
       shell "git init"
     end
     
+    def add str
+      shell "git add #{str}"
+    end
+
+    def update
+      add '.'
+      add '-u'
+    end
+    
+    def tag str
+      shell "git tag #{str}"
+    end
+
     def reset
       shell "git reset"
     end
