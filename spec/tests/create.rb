@@ -17,17 +17,6 @@ describe "Create a gem" do
     File.directory?("#{BOX.down('tim').dir}/spec/tests").should.be == true
   end
   
-  it 'adds a gitorius remote to git repo' do
-    BOX.down('tim').shell("git remote -v")
-    .should == "gitorius\tgit@gitorious.org:mu-gems/tim.git (fetch)\ngitorius\tgit@gitorious.org:mu-gems/tim.git (push)"
-  end
-  
-  it 'adds a gitorius remote by lower-casing the name' do
-    BOX.bin('create TIMM')
-    BOX.down('TIMM').shell("git remote -v")
-    .should == "gitorius\tgit@gitorious.org:mu-gems/TIMM.git (fetch)\ngitorius\tgit@gitorious.org:mu-gems/TIMM.git (push)"
-  end
-  
   it 'raises Already_Exists when folder exists' do
     lambda {
       BOX.bin('create tim')
@@ -47,3 +36,24 @@ describe "Create a gem" do
   end
   
 end # === describe Create a gem
+
+
+
+
+
+
+
+__END__
+
+
+  
+  # it 'adds a gitorius remote to git repo' do
+  #   BOX.down('tim').shell("git remote -v")
+  #   .should == "gitorius\\tgit@gitorious.org:mu-gems/tim.git (fetch)\\ngitorius\\tgit@gitorious.org:mu-gems/tim.git (push)"
+  # end
+  # 
+  # it 'adds a gitorius remote by lower-casing the name' do
+  #   BOX.bin('create TIMM')
+  #   BOX.down('TIMM').shell("git remote -v")
+  #   .should == "gitorius\\tgit@gitorious.org:mu-gems/TIMM.git (fetch)\\ngitorius\\tgit@gitorious.org:mu-gems/TIMM.git (push)"
+  # end

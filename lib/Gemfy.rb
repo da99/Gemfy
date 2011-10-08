@@ -66,7 +66,7 @@ class Gemfy
     shell "mkdir -p #{folder}/spec/tests"
     write 'spec--main.rb'
     write 'spec--helper.rb'
-    shell "cd #{folder} && git remote add gitorius git@gitorious.org:mu-gems/#{name}.git"
+    # repo.shell "git remote add gitorius git@gitorious.org:mu-gems/#{name}.git"
     add_depend 'bacon'
     add_depend 'rake'
     if not testing?
