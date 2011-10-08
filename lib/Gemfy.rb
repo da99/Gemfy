@@ -1,5 +1,5 @@
 require "Gemfy/version"
-require 'Gemfy/Git_Repo'
+require 'Git_Repo'
 class Gemfy
 
   Missing_Value        = Class.new(RuntimeError)
@@ -98,6 +98,18 @@ class Gemfy
     @repo ||= Git_Repo.new(folder)
   end
 
+  def version_pattern
+    @version_pattern ||= %r!\d+\.\d+\.\d+!
+  end
+
+  def version_rb
+    @version_rb ||= "#{folder}/lib/#{name}/version.rb"
+  end
+
+  def version
+    File.read(version_rb)[version_pattern]
+  end
+
   def version_bump type
     shell "cd #{folder} && bundle exec ruby spec/main.rb"
     
@@ -105,52 +117,57 @@ class Gemfy
       raise Files_Uncomitted, "Commit first."
     end
     
-    version_rb = "lib/#{name}/version.rb"
-    file = (File.expand_path "#{folder}/#{version_rb}")
-    pattern = %r!\d+.\d+.\d+!
-    ver = File.read(file)[pattern]
     new_ver = case type
+                
               when :patch
-                pieces=ver.split('.')
+                pieces=version.split('.')
                 patch = pieces.pop.to_i + 1
                 pieces.push( patch )
                 pieces.join('.')
+                
               when :minor
-                pieces=ver.split('.')
+                pieces=version.split('.')
                 pieces.pop
                 min = pieces.pop.to_i + 1
                 pieces.push( min )
                 pieces.push '0'
                 pieces.join('.')
+                
               else
                 raise "Invalid type: #{type.inspect}"
+                
               end
-    contents = File.read( file )
-    File.open(file, 'w') { |io|
-      io.write contents.sub( pattern, new_ver )
+    
+    contents = File.read( version_rb )
+    File.open(version_rb, 'w') { |io|
+      io.write contents.sub( version_pattern, new_ver )
     }
     
     repo.update
     repo.commit("Bump version #{type}: #{new_ver}")
     repo.tag("v#{new_ver}")
     
-    return if testing? || name == 'Gemfy'
-    upload
+    release
   end
   
-  def upload
-    repo.push('gitorius')
-      
-    mu_gems = shell("cd ../../SITES/mu-gems && pwd")
+  def release
+    return false if testing? 
     
-    if File.read("#{mu_gems}/Gemfile")[%r!^\s{0,}gem\s+["']{1}#{name}["']{1}!]
-      m = Git_Repo.new(mu_gems)
-      m.reset
-      m.bundle_update
-      m.add( "Gemfile.lock " )
-      m.commit("Updated gem: #{name}")
-      m.push("heroku")
+    if name == 'Gemfy'
+      shell "rake install"
+      return false
     end
+    
+    gemspec = File.read("#{name}.gemspec")
+    
+    if gemspec[%r!(FIXME|TODO):!]
+      raise "There are #{$1}s in .gemspec"
+    end
+    
+    shell "gem build #{name}"
+    shell "gem push #{name}-#{version}.gem"
+    
+    true
   end
   
   def write filename

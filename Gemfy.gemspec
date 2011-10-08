@@ -12,6 +12,8 @@ Gem::Specification.new do |s|
   s.description = %q{Personal gem creator for megauni-related gems.}
 
   s.add_development_dependency 'bacon'
+  s.add_development_dependency 'rake'
+  s.add_runtime_dependency 'Git_Repo'
 
   s.rubyforge_project = "Gemfy"
 
