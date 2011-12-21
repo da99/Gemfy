@@ -44,7 +44,7 @@ class Box
   def read file
     case file
     when '*'
-      Dir.glob(File.join(dir, '**')).map { |addr|
+      Dir.glob(File.join(dir, '**/*')).map { |addr|
         if File.file?(addr)
           File.read(addr)
         else

@@ -193,7 +193,7 @@ class Gemfy
     contents = templ
       .gsub('{{name}}', name)
       .gsub('{name}', name)
-      .gsub('{class_name}', name.capitalize)
+      .gsub('{class_name}', name.sub( %r!.! ) { |c| c.capitalize } )
       .gsub('{email}', email)
       .gsub('{username}', username)
     

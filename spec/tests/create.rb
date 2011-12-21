@@ -29,6 +29,7 @@ describe "Create a gem" do
     b.read("tim.gemspec")[%r!\w\.add_development_dependency .rake.!]
     .should.not.be == nil
   end  
+  
   it 'adds Bacon as a dependency' do
     b = BOX.down('tim')
     b.read("tim.gemspec")[%r!\w\.add_development_dependency .bacon.!]
@@ -38,6 +39,11 @@ describe "Create a gem" do
   it 'does not transform name of gem: Bacon_Colored -> BaconColored' do
     BOX.bin('create Bac_Col')
     BOX.down('Bac_Col').read('*')[%r!.{0,10}BacCol.{0,10}!].should.be == nil
+  end
+  
+  it 'only transforms the first letter for class name: uni_Arch => Uni_Arch' do
+    BOX.bin('create uni_Arch')
+    BOX.down('uni_Arch').read('*')[%r!Uni_arch!].should.be == nil
   end
   
   it 'creates a .git directory' do
