@@ -1,5 +1,7 @@
 require "{name}/version"
 
-module {class_name}
-  # Your code goes here...
-end
+class {class_name}
+  
+  
+  
+end # === class {class_name}
