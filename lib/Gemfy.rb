@@ -78,9 +78,11 @@ class Gemfy
       write file_name
     }
     
-    shell "git init"
-    shell "git add ."
-    shell "git commit -m \"First commit: Gem created.\" "
+    shell "cd #{folder} 
+      git init
+      git add .
+      git commit -m \"First commit: Gem created.\" 
+    ".split("\n").join(" && ")
     # repo.shell "git remote add gitorius git@gitorious.org:mu-gems/#{name}.git"
     
     if not testing?

@@ -14,10 +14,11 @@ class Box
   def initialize name = :default
     if name === :default
       @dir = TEMP
+      @name = ''
     else
+      @name = name
       @dir = File.join(TEMP, name)
     end
-    
   end
 
   def shell raw_cmd
@@ -37,7 +38,7 @@ class Box
   end
   
   def down name
-    Box.new(name)
+    Box.new(File.join @name, name)
   end
   
   def read file

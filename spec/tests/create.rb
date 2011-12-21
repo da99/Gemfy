@@ -39,6 +39,10 @@ describe "Create a gem" do
     BOX.bin('create Bac_Col')
     BOX.down('Bac_Col').read('*')[%r!.{0,10}BacCol.{0,10}!].should.be == nil
   end
+  
+  it 'creates a .git directory' do
+    File.directory?(BOX.down('tim').down('.git').dir).should.be == true
+  end
 
 end # === describe Create a gem
 
