@@ -4,7 +4,8 @@ require 'Gemfy'
 class Box
   
   GEM_NAME = File.expand_path('.').split('/').reverse.detect { |f| !f.strip.empty? }
-  TEMP     = "/tmp/#{GEM_NAME}/rand_#{rand(1000)}"
+  TMP      = "/tmp/#{GEM_NAME}"
+  TEMP     = "#{TMP}/rand_#{rand(1000)}"
   BIN      = File.expand_path('.') + '/bin'
   BINARY   = File.join(BIN, GEM_NAME.upcase)
 
@@ -40,16 +41,28 @@ class Box
   end
   
   def read file
-    File.read(File.join dir, file)
+    case file
+    when '*'
+      Dir.glob(File.join(dir, '**')).map { |addr|
+        if File.file?(addr)
+          File.read(addr)
+        else
+          nil
+        end
+      }.compact.join("\n")
+    else
+      File.read(File.join dir, file )
+    end
   end
   
 end # === class Box
 
 BOX = Box.new
-`mkdir -p #{BOX.dir}`
-at_exit { 
-  `rm -rf #{BOX.dir}`
+
+Dir.glob("#{Box::TMP}/*").each { |obj|
+  `rm -rf #{obj}` if File.directory?(obj)
 }
+`mkdir -p #{BOX.dir}`
 
 Dir.glob('spec/tests/*.rb').each { |file|
   require File.expand_path(file.sub('.rb', '')) if File.file?(file)

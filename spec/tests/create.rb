@@ -35,8 +35,38 @@ describe "Create a gem" do
     .should.not.be == nil
   end
   
+  it 'does not transform name of gem: Bacon_Colored -> BaconColored' do
+    BOX.bin('create Bac_Col')
+    BOX.down('Bac_Col').read('*')[%r!.{0,10}BacCol.{0,10}!].should.be == nil
+  end
+
 end # === describe Create a gem
 
+describe ".gitignore after creation" do
+  
+  before do
+    @ignore = lambda { |target| 
+      BOX.down('tim')
+        .read('.gitignore')
+        .split("\n")
+        .map(&:strip)
+        .detect { |line| target == line }
+    }
+  end
+
+  it 'must include coverage folder (rcov generated)' do
+    @ignore.call('coverage').should.be == 'coverage'
+  end
+  
+  it 'must include rdoc folder' do
+    @ignore.call('rdoc').should.be == 'rdoc'
+  end
+  
+  it 'must include .yardoc file' do
+    @ignore.call('.yardoc').should.be == '.yardoc'
+  end
+  
+end # === describe .gitignore after creation
 
 
 

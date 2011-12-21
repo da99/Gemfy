@@ -29,15 +29,15 @@ class Gemfy
 
   end # === class << self
 
-  attr_reader :name, :current_folder
+  attr_reader :name, :current_folder, :email, :username
   def initialize raw_name
     name = raw_name.to_s.strip
     raise(Missing_Value, "name for gem") if name.empty?
     raise(Invalid_Name, name.inspect) if name[%r![^a-zA-Z0-9\-\_\.]!]
-    @name = name
+    @name           = name
     @current_folder = File.basename(File.expand_path('.'))
-    email = git_config("email")
-    username = git_config('name')
+    @email          = git_config("email")
+    @username       = git_config('name')
   end
   
   def git_config name
@@ -50,8 +50,8 @@ class Gemfy
   end
   
   def shell cmd
-    val = `#{cmd} 2>&1`.to_s.strip
     puts cmd
+    val = `#{cmd} 2>&1`.to_s.strip
     if $?.exitstatus != 0
       raise Failed_Shell_Command, "Results:\n#{val}"
     end
@@ -61,15 +61,30 @@ class Gemfy
   
   def create
     raise(Already_Exists, name) if File.directory?(File.expand_path name)
-    raise("Name can not be == to :create") if name == 'create'
-    shell "bundle gem #{name}"
+    raise("Name can not be == to 'create'") if name.to_s.downcase == 'create'
+    shell "mkdir -p #{folder}/lib/#{name}"
     shell "mkdir -p #{folder}/spec/tests"
-    write 'spec--main.rb'
-    write 'spec--helper.rb'
+    
+    %w{ 
+      Gemfile.tmpl
+      lib--NAME.rb
+      lib--NAME--version.rb
+      NAME.gemspec
+      NONE.gitignore
+      Rakefile.tmpl
+      spec--helper.rb
+      spec--main.rb
+    }.each { |file_name| 
+      write file_name
+    }
+    
+    shell "git init"
+    shell "git add ."
+    shell "git commit -m \"First commit: Gem created.\" "
     # repo.shell "git remote add gitorius git@gitorious.org:mu-gems/#{name}.git"
-    add_depend 'bacon'
-    add_depend 'rake'
+    
     if not testing?
+      puts "\nbundle update..."
       shell "cd #{folder} && bundle update"
     end
   end
@@ -165,16 +180,30 @@ class Gemfy
     end
     
     shell "gem build #{name}.gemspec"
+    puts "\nPushing gem..."
     shell "gem push #{name}-#{version}.gem"
-    
+    shell "rm #{name}-#{version}.gem"
     true
   end
   
   def write filename
     templ = File.read(template(filename))
-    contents = templ.gsub('{{name}}', name)
+    contents = templ
+      .gsub('{{name}}', name)
+      .gsub('{name}', name)
+      .gsub('{class_name}', name.capitalize)
+      .gsub('{email}', email)
+      .gsub('{username}', username)
     
-    File.open("#{folder}/#{filename.gsub('--', '/')}", 'w') { |io|
+    address = "#{folder}/" + (
+      filename
+      .sub('NAME', name)
+      .sub('NONE', '')
+      .sub( /.tmpl\Z/, '')
+      .gsub('--', '/')
+    )
+      
+    File.open(address, 'w') { |io|
       io.write contents
     }
     
@@ -212,5 +241,30 @@ class Gemfy
     }
   end
 
+  # Use ENV['pattern']= in place of 'bacon file -t pattern'
+  def bacon
+    args = ''
+    if ENV['pattern']
+      args << " -t #{ENV['pattern'].inspect}"
+    end
+    shell "bundle exec bacon spec/main.rb #{args}"
+  end # === def bacon
+  
+  def git_push
+    repo   = ENV['repo'] || 'gitorious'
+    branch = ENV['branch'] || 'master'
+    shell "git push #{repo} #{branch}"
+  end
+  
+  # Adds Gemfile.lock to .gitignore
+  def gitignore
+            name = '.gitignore'
+            contents = File.read(name)
+            sh("echo \"Gemfile.lock\" >> #{name}") unless contents['Gemfile.lock']
+            if File.directory?('.git')
+              sh "git rm Gemfile.lock"
+            end
+  end
+  
 end # === class Gemfy
 
