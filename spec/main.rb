@@ -1,6 +1,8 @@
 
 require File.expand_path('spec/helper')
 require 'Gemfy'
+require 'Bacon_Colored'
+require 'Bacon_FS'
 class Box
   
   GEM_NAME = File.expand_path('.').split('/').reverse.detect { |f| !f.strip.empty? }
