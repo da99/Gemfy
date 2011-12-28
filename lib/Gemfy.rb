@@ -170,7 +170,7 @@ class Gemfy
   def release
     return false if testing? 
     
-    if name == 'Gemfy'
+    if File.file?("config/local_only.txt")
       shell "rake install"
       return false
     end
