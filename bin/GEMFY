@@ -12,7 +12,14 @@ when 'create'
   g.create
 when 'bacon'
   ARGV.shift
-  cmd = "bundle exec bacon spec/main.rb #{ARGV.join(' ')}"
+  new_args = ARGV.map { |ele|  
+    if ele[' ']
+      ele.inspect
+    else
+      ele
+    end
+  }.join(' ')
+  cmd = "bundle exec bacon spec/main.rb #{new_args}"
   puts cmd
   exec cmd
 when 'all'
