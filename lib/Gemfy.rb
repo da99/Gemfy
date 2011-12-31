@@ -269,7 +269,7 @@ class Gemfy
   end
   
   def local_only
-    shell("mkdir config && touch config/local_only.txt")
+    shell("mkdir -p config && touch config/local_only.txt")
   end
 
 end # === class Gemfy
