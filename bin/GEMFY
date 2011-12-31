@@ -12,6 +12,9 @@ when 'create'
   g.create
 when 'bacon'
   ARGV.shift
+  
+  # From:
+  # http://stackoverflow.com/a/2966988/841803
   new_args = ARGV.map { |ele|  
     if ele[' ']
       ele.inspect
