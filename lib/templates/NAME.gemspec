@@ -18,8 +18,9 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "bacon"
   s.add_development_dependency "rake"
+  s.add_development_dependency 'Bacon_Colored'
   
-  #s.rubyforge_project = "{name}"
+  # s.rubyforge_project = "{name}"
   # specify any dependencies here; for example:
   # s.add_runtime_dependency "rest-client"
 end
