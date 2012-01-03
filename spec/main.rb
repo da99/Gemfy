@@ -35,6 +35,41 @@ class Box
     val
   end
   
+  def fix_todos
+    fix_gemspec 'TODO'
+  end
+  
+  def fix_fixmes
+    fix_gemspec 'FIXME'
+  end
+
+  def fix_gemspec *args
+    args = %w{ TODO FIXME } if args.empty?
+    altered = nil
+    gemspec = Dir.glob("#{dir}/*.gemspec").first
+    
+    raise "No gemspec found: #{dir}" unless gemspec
+    args.each { |str|
+
+      orig = File.read(gemspec)
+      content  = orig.gsub("#{str}:", "Done #{rand(1000)}")
+      altered ||= (orig != content)
+      
+      File.open( gemspec, 'w' ) { |io|
+        io.write(content)
+      }
+      
+    }
+    
+    if altered
+      git_commit "Updated gemspec file."
+    end
+  end
+  
+  def git_commit msg
+      shell %! git add . && git add -u && git commit -m #{msg.inspect} !
+  end
+  
   def bin raw_cmd
     shell "#{BINARY} #{raw_cmd}"
   end
@@ -56,6 +91,13 @@ class Box
     else
       File.read(File.join dir, file )
     end
+  end
+  
+  def append file, ending
+    content = read(file) + "\n#{ending}"
+    File.open("#{dir}/#{file}", 'w') { |io|
+      io.write content
+    }
   end
   
 end # === class Box

@@ -11,9 +11,34 @@ describe "Update a gem version" do
     .message.should.match %r!Commit first. \(Gemfy::Files_Uncomitted\)!
   end
   
+  it "won't tag git if there are todos in .gemspec" do
+    BOX.bin "create todo01"
+    b = BOX.down('todo01')
+    lambda {
+      b.bin "bump_patch"
+    }.should.raise(RuntimeError)
+    .message.should.match %r!There are TODOs in todo01.gemspec!
+    
+    b.shell("git tag -l").should.be == ''
+  end
+  
+  it "won't tag git if there are fixmes in .gemspec" do
+    BOX.bin "create fixme01"
+    b = BOX.down('fixme01')
+    b.fix_todos
+    b.append "fixme01.gemspec", '# FIXME: '
+    b.git_commit 'Added a FIXME to gemspec file.'
+    lambda {
+      b.bin "bump_patch"
+    }.should.raise(RuntimeError)
+    .message.should.match %r!There are FIXMEs in fixme01.gemspec!
+    
+    b.shell("git tag -l").should.be == ''
+  end
+  
   it 'tags git after bump' do
     b = BOX.down('joey') 
-    b.shell "git add . && git add -u && git commit -m \"First commit.\""
+    b.fix_gemspec
     
     b.bin 'bump_minor'
     b.shell( "git tag -l" ).should.be == "v0.1.0"
@@ -43,7 +68,9 @@ describe "Update a gem version" do
   end
   
   it 'fails to bump version if Bacon specs are not met.' do
-    b = BOX.down('joey')
+    name = "joey"
+    b = BOX.down( name )
+    old_tags = b.shell("git tag -l")
     File.open(b.dir + '/spec/tests/fail.rb', 'w') { |io|
       io.write %~
         describe 'fails' do
@@ -53,10 +80,13 @@ describe "Update a gem version" do
         end
       ~
     }
+    
     lambda {
       b.bin('bump_minor')
     }.should.raise(RuntimeError)
-    .message.should.match %r!\[FAILED\]\n\nBacon::Error: false.==\(true\) failed\n\t/tmp/Gemfy/[a-zA-Z0-9\-\_]+/joey/spec/tests/fail.rb:4!
+    .message.should.match %r!\[FAILED\]\e\[0m\n\nBacon::Error: false.==\(true\) failed\n\t/tmp/Gemfy/[a-zA-Z0-9\-\_]+/#{name}/spec/tests/fail.rb:4!
+      
+    b.shell("git tag -l").should.be == old_tags
   end
   
   it 'applies command to all gems' do

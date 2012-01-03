@@ -133,6 +133,7 @@ class Gemfy
     if repo.staged?
       raise Files_Uncomitted, "Commit first."
     end
+    check_gemspec
     
     new_ver = case type
                 
@@ -160,6 +161,7 @@ class Gemfy
       io.write contents.sub( version_pattern, new_ver )
     }
     
+    
     repo.update
     repo.commit("Bump version #{type}: #{new_ver}")
     repo.tag("v#{new_ver}")
@@ -167,18 +169,21 @@ class Gemfy
     release
   end
   
+  def check_gemspec
+    gemspec = File.read("#{name}.gemspec")
+    
+    if gemspec[%r!(FIXME|TODO):!]
+      raise "There are #{$1}s in #{name}.gemspec"
+    end
+  end
+
   def release
+    check_gemspec
     return false if testing? 
     
     if File.file?("config/local_only.txt")
       shell "rake install"
       return false
-    end
-    
-    gemspec = File.read("#{name}.gemspec")
-    
-    if gemspec[%r!(FIXME|TODO):!]
-      raise "There are #{$1}s in .gemspec"
     end
     
     shell "gem build #{name}.gemspec"
