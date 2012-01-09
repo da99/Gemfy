@@ -109,6 +109,10 @@ class Gemfy
     version_bump :minor
   end
 
+  def MaJoR
+    version_bump :MaJoR
+  end
+
   def testing?
     folder =~ %r!^/tmp!
   end
@@ -161,6 +165,16 @@ class Gemfy
                 pieces.pop
                 min = pieces.pop.to_i + 1
                 pieces.push( min )
+                pieces.push '0'
+                pieces.join('.')
+                
+              when :MaJoR
+                pieces=version.split('.')
+                pieces.pop
+                pieces.pop
+                m = pieces.pop.to_i + 1
+                pieces.push( m )
+                pieces.push '0'
                 pieces.push '0'
                 pieces.join('.')
                 

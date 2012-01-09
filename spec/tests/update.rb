@@ -72,6 +72,14 @@ describe "Update a gem version" do
     b.shell("git status")['nothing to commit'].should.be == 'nothing to commit'
   end
 
+  it 'bumps minor' do
+    BOX.bin "create bump_minor01"
+    b = BOX.down('bump_minor01') 
+    b.fix_gemspec
+    b.bin "bump_minor"
+    b.read("lib/bump_minor01/version.rb")[/\d.\d.\d/].should == "0.1.0"
+  end
+
   it 'bumps patch' do
     BOX.bin "create bump_patch01"
     b = BOX.down('bump_patch01') 
@@ -81,12 +89,13 @@ describe "Update a gem version" do
     b.read("lib/bump_patch01/version.rb")[/\d.\d.\d/].should == "0.0.2"
   end
 
-  it 'bumps minor' do
-    BOX.bin "create bump_minor01"
-    b = BOX.down('bump_minor01') 
+  it 'bumps major' do
+    BOX.bin "create major01"
+    b = BOX.down('major01') 
     b.fix_gemspec
-    b.bin "bump_minor"
-    b.read("lib/bump_minor01/version.rb")[/\d.\d.\d/].should == "0.1.0"
+    
+    b.bin "MaJoR"
+    b.read("lib/major01/version.rb")[/\d.\d.\d/].should == "1.0.0"
   end
 
   it 'adds version.rb to git after bump' do
