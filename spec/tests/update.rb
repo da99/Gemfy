@@ -11,6 +11,13 @@ describe "Update a gem version" do
     .message.should.match %r!Commit first. \(Gemfy::Files_Uncomitted\)!
   end
   
+  it "raises an error if there are files with double tabs" do
+    BOX.bin "create tabs"
+    b = BOX.down("tabs")
+    lambda {}.should.raise(RuntimeError)
+    .message.should.match %r!files with tabs!
+  end
+
   it "won't tag git if there are todos in .gemspec" do
     BOX.bin "create todo01"
     b = BOX.down('todo01')
@@ -35,7 +42,7 @@ describe "Update a gem version" do
     
     b.shell("git tag -l").should.be == ''
   end
-  
+
   it 'tags git after bump' do
     b = BOX.down('joey') 
     b.fix_gemspec
@@ -44,22 +51,39 @@ describe "Update a gem version" do
     b.shell( "git tag -l" ).should.be == "v0.1.0"
   end
   
+  it 'raises error if previous commit was a tag' do
+    BOX.bin "create already_tagged"
+    b = BOX.down('already_tagged') 
+    b.fix_gemspec
+    
+    b.bin 'bump_minor'
+    lambda { b.bin 'bump_minor' }.should.raise(RuntimeError)
+    .message.should.match %r!Previous commit already tagged!
+  end
+  
   it 'commits after bump' do
-    b = BOX.down('joey') 
+    BOX.bin "create committed_bump"
+    b = BOX.down('committed_bump') 
+    b.fix_gemspec
     b.bin 'bump_minor'
     b.shell("git status")['nothing to commit'].should.be == 'nothing to commit'
   end
 
   it 'bumps patch' do
-    b = BOX.down('joey') 
+    BOX.bin "create bump_patch01"
+    b = BOX.down('bump_patch01') 
+    b.fix_gemspec
+    
     b.bin "bump_patch"
-    b.read("lib/joey/version.rb")[/.\d.\d.\d./].should.match %r!.0.2.1.!
+    b.read("lib/bump_patch01/version.rb")[/.\d.\d.\d./].should.match %r!.0.2.1.!
   end
 
   it 'bumps minor' do
-    b = BOX.down('joey')
+    BOX.bin "create bump_minor01"
+    b = BOX.down('bump_minor01') 
+    b.fix_gemspec
     b.bin "bump_minor"
-    b.read("lib/joey/version.rb")[/.\d.\d.\d./].should.match %r!.0.3.0.!
+    b.read("lib/bump_minor01/version.rb")[/.\d.\d.\d./].should.match %r!.0.3.0.!
   end
 
   it 'adds version.rb to git after bump' do

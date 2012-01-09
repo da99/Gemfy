@@ -9,6 +9,7 @@ class Gemfy
   Invalid_Name         = Class.new(RuntimeError)
   Files_Uncomitted     = Class.new(RuntimeError)
   Invalid_Command      = Class.new(RuntimeError)
+  Already_Tagged       = Class.new(RuntimeError)
 
   class << self
     
@@ -128,6 +129,10 @@ class Gemfy
   end
 
   def version_bump type
+    previous = shell(%~ git log -n 1 --oneline --decorate=full ~)
+    if previous['tag: refs/tags/v']
+      raise Already_Tagged, "Previous commit already tagged: #{previous}"
+    end
     shell "cd #{folder} && bundle exec ruby spec/main.rb"
     
     if repo.staged?
