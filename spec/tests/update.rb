@@ -14,8 +14,11 @@ describe "Update a gem version" do
   it "raises an error if there are files with double tabs" do
     BOX.bin "create tabs"
     b = BOX.down("tabs")
-    lambda {}.should.raise(RuntimeError)
-    .message.should.match %r!files with tabs!
+    b.append "spec/main.rb", "\t\t"
+    lambda {
+      b.bin "bump_patch"
+    }.should.raise(RuntimeError)
+    .message.should.match %r!Files with tabs: !
   end
 
   it "won't tag git if there are todos in .gemspec" do

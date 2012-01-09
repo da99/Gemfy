@@ -10,7 +10,8 @@ class Gemfy
   Files_Uncomitted     = Class.new(RuntimeError)
   Invalid_Command      = Class.new(RuntimeError)
   Already_Tagged       = Class.new(RuntimeError)
-
+  Tabbed_Files         = Class.new(RuntimeError)
+  
   class << self
     
     def all *raw_args
@@ -129,6 +130,13 @@ class Gemfy
   end
 
   def version_bump type
+    tabbed_files = Dir.glob("**/*.rb").select { |file|
+      File.read(file)["\t\t"]
+    }
+    if !tabbed_files.empty?
+      raise Tabbed_Files, "Files with tabs: #{tabbed_files.join(", ")}"
+    end
+
     previous = shell(%~ git log -n 1 --oneline --decorate=full ~)
     if previous['tag: refs/tags/v']
       raise Already_Tagged, "Previous commit already tagged: #{previous}"
