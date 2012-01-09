@@ -75,7 +75,7 @@ describe "Update a gem version" do
     b.fix_gemspec
     
     b.bin "bump_patch"
-    b.read("lib/bump_patch01/version.rb")[/.\d.\d.\d./].should.match %r!.0.2.1.!
+    b.read("lib/bump_patch01/version.rb")[/\d.\d.\d/].should == "0.0.2"
   end
 
   it 'bumps minor' do
@@ -83,7 +83,7 @@ describe "Update a gem version" do
     b = BOX.down('bump_minor01') 
     b.fix_gemspec
     b.bin "bump_minor"
-    b.read("lib/bump_minor01/version.rb")[/.\d.\d.\d./].should.match %r!.0.3.0.!
+    b.read("lib/bump_minor01/version.rb")[/\d.\d.\d/].should == "0.1.0"
   end
 
   it 'adds version.rb to git after bump' do
@@ -105,6 +105,8 @@ describe "Update a gem version" do
       ~
     }
     
+    b.shell "git add ."
+    b.shell "git commit -m \"Added test.\""
     lambda {
       b.bin('bump_minor')
     }.should.raise(RuntimeError)
