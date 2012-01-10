@@ -190,7 +190,7 @@ class Gemfy
     
     
     repo.update
-    repo.commit("Bump version #{type}: #{new_ver}")
+    repo.commit("Bump version #{type.downcase}: #{new_ver}")
     repo.tag("v#{new_ver}")
     
     release

@@ -97,6 +97,11 @@ describe "Update a gem version" do
     b.bin "MaJoR"
     b.read("lib/major01/version.rb")[/\d.\d.\d/].should == "1.0.0"
   end
+  
+  it 'git tags major with "Bump version major: \\d.\\d.\\d"' do
+    b = BOX.down('major01') 
+    b.shell("git log -n 1 --oneline").should.match %r@Bump version major: \d\.\d\.\d@
+  end
 
   it 'adds version.rb to git after bump' do
     b = BOX.down('joey')
