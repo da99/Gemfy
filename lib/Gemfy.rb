@@ -210,6 +210,7 @@ class Gemfy
     
     if File.file?("config/local_only.txt")
       shell "rake install"
+      shell "rm pkg/#{name}-#{version}.gem"
       return false
     end
     
