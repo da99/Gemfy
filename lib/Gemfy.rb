@@ -11,6 +11,7 @@ class Gemfy
   Invalid_Command      = Class.new(RuntimeError)
   Already_Tagged       = Class.new(RuntimeError)
   Tabbed_Files         = Class.new(RuntimeError)
+  Puts_Files           = Class.new(RuntimeError)
   
   class << self
     
@@ -134,6 +135,14 @@ class Gemfy
   end
 
   def version_bump type
+    puts_files = Dir.glob("**/*.rb").select { |file|
+      !file['spec/'] && 
+        File.read(file)[/puts[\s\(]/]
+    }
+    if !puts_files.empty?
+      raise Puts_Files, "Files with puts: #{puts_files.join ", "}"
+    end
+    
     tabbed_files = Dir.glob("**/*.rb").select { |file|
       File.read(file)["\t\t"]
     }
@@ -293,12 +302,12 @@ class Gemfy
   
   # Adds Gemfile.lock to .gitignore
   def gitignore
-            name = '.gitignore'
-            contents = File.read(name)
-            sh("echo \"Gemfile.lock\" >> #{name}") unless contents['Gemfile.lock']
-            if File.directory?('.git')
-              sh "git rm Gemfile.lock"
-            end
+    name = '.gitignore'
+    contents = File.read(name)
+    sh("echo \"Gemfile.lock\" >> #{name}") unless contents['Gemfile.lock']
+    if File.directory?('.git')
+      sh "git rm Gemfile.lock"
+    end
   end
   
   def local_only

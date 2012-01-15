@@ -11,6 +11,17 @@ describe "Update a gem version" do
     .message.should.match %r!Commit first. \(Gemfy::Files_Uncomitted\)!
   end
   
+  it "raises an error if there are files with :puts" do
+    BOX.bin "create puts"
+    b = BOX.down("puts")
+    b.append "lib/puts.rb", "puts 'something'"
+    lambda {
+      b.bin "bump_patch"
+    }.should.raise(RuntimeError)
+    .message.should.match %r!Files with puts: !
+  end
+
+  
   it "raises an error if there are files with double tabs" do
     BOX.bin "create tabs"
     b = BOX.down("tabs")
