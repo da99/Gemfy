@@ -1,4 +1,4 @@
-require "{name}/version"
+require '{name}/version'
 
 class {class_name}
   

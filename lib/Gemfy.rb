@@ -52,13 +52,19 @@ class Gemfy
     val
   end
   
+  def print *args
+    args.each { |a|
+      super a, "\n"
+    }
+  end
+
   def shell cmd
-    puts cmd
+    print cmd
     val = `#{cmd} 2>&1`.to_s.strip
     if $?.exitstatus != 0
       raise Failed_Shell_Command, "Results:\n#{val}"
     end
-    puts val
+    print val
     val
   end
   
@@ -89,7 +95,7 @@ class Gemfy
     # repo.shell "git remote add gitorius git@gitorious.org:mu-gems/#{name}.git"
     
     if not testing?
-      puts "\nbundle update..."
+      print "\nbundle update..."
       shell "cd #{folder} && bundle update"
     end
   end
@@ -224,7 +230,7 @@ class Gemfy
     end
     
     shell "gem build #{name}.gemspec"
-    puts "\nPushing gem..."
+    print "\nPushing gem..."
     shell "gem push #{name}-#{version}.gem"
     shell "rm #{name}-#{version}.gem"
     true

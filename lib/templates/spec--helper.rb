@@ -3,8 +3,8 @@ require 'bundler'
 begin
   Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e
-  $stderr.puts e.message
-  $stderr.puts "Run `bundle install` to install missing gems"
+  $stderr.print e.message, "\n"
+  $stderr.print "Run `bundle install` to install missing gems\n"
   exit e.status_code
 end
 require 'bacon'
