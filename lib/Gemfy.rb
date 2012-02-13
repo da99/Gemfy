@@ -58,8 +58,9 @@ class Gemfy
     }
   end
 
-  def shell cmd
+  def shell cmd, msg = nil
     print cmd
+    print(msg, "\n") if msg
     val = `#{cmd} 2>&1`.to_s.strip
     if $?.exitstatus != 0
       raise Failed_Shell_Command, "Results:\n#{val}"
@@ -160,7 +161,7 @@ class Gemfy
     if previous['tag: refs/tags/v']
       raise Already_Tagged, "Previous commit already tagged: #{previous}"
     end
-    shell "cd #{folder} && bundle exec ruby spec/main.rb"
+    shell "cd #{folder} && bundle exec ruby spec/main.rb", "Please wait while tests are running..."
     
     if repo.staged?
       raise Files_Uncomitted, "Commit first."
