@@ -50,6 +50,15 @@ describe "Create a gem" do
     File.directory?(BOX.down('tim').down('.git').dir).should.be == true
   end
 
+  it 'creates a bin directory set to 770' do
+    d = "samp_#{rand(1000)}"
+    BOX.bin "create #{d}"
+    BOX.chdir(d) {
+      `stat -c %a bin`.strip
+      .should == '770'
+    }
+  end
+
 end # === describe Create a gem
 
 describe ".gitignore after creation" do

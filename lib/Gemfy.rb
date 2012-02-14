@@ -74,6 +74,8 @@ class Gemfy
     raise("Name can not be == to 'create'") if name.to_s.downcase == 'create'
     shell "mkdir -p #{folder}/lib/#{name}"
     shell "mkdir -p #{folder}/spec/tests"
+    shell "mkdir -p #{folder}/bin"
+    shell "chmod 770 #{folder}/bin"
     
     %w{ 
       Gemfile.tmpl
@@ -88,11 +90,12 @@ class Gemfy
       write file_name
     }
     
-    shell "cd #{folder} 
+    shell "
+      cd #{folder} 
       git init
       git add .
       git commit -m \"First commit: Gem created.\" 
-    ".split("\n").join(" && ")
+    ".strip.split("\n").join(" && ")
     # repo.shell "git remote add gitorius git@gitorious.org:mu-gems/#{name}.git"
     
     if not testing?

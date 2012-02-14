@@ -23,6 +23,10 @@ class Box
     end
   end
 
+  def chdir path = nil
+    Dir.chdir(File.join *([dir, path].compact) ) { yield }
+  end
+  
   def shell raw_cmd
     cmd = raw_cmd.strip
     raise "Invalid characters: #{cmd}" if cmd[/\r|\n/]
@@ -109,6 +113,11 @@ Dir.glob("#{Box::TMP}/*").each { |obj|
 }
 `mkdir -p #{BOX.dir}`
 
-Dir.glob('spec/tests/*.rb').each { |file|
-  require File.expand_path(file.sub('.rb', '')) if File.file?(file)
-}
+# ======== Include the tests.
+if ARGV.size > 1 && ARGV[1, ARGV.size - 1].detect { |a| File.exists?(a) }
+  # Do nothing. Bacon grabs the file.
+else
+  Dir.glob('spec/tests/*.rb').each { |file|
+    require File.expand_path(file.sub('.rb', '')) if File.file?(file)
+  }
+end
