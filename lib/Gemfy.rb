@@ -75,7 +75,7 @@ class Gemfy
     shell "mkdir -p #{folder}/lib/#{name}"
     shell "mkdir -p #{folder}/spec/tests"
     shell "mkdir -p #{folder}/bin"
-    shell "chmod 770 #{folder}/bin"
+    shell "chmod 750 #{folder}/bin"
     
     %w{ 
       Gemfile.tmpl
@@ -86,6 +86,7 @@ class Gemfy
       Rakefile.tmpl
       spec--helper.rb
       spec--main.rb
+      spec--tests--bin.rb
     }.each { |file_name| 
       write file_name
     }

@@ -13,8 +13,10 @@ describe "Create a gem" do
     File.directory?(BOX.down('tim').dir).should.be == true
   end
   
-  it 'creates a spec/tests dir' do
-    File.directory?("#{BOX.down('tim').dir}/spec/tests").should.be == true
+  it 'creates a spec/tests/bin.rb file' do
+    BOX.chdir('tim') {
+      File.file?("spec/tests/bin.rb").should == true
+    }
   end
   
   it 'raises Already_Exists when folder exists' do
@@ -49,13 +51,13 @@ describe "Create a gem" do
   it 'creates a .git directory' do
     File.directory?(BOX.down('tim').down('.git').dir).should.be == true
   end
-
-  it 'creates a bin directory set to 770' do
+  
+  it 'creates a bin directory set to 750' do
     d = "samp_#{rand(1000)}"
     BOX.bin "create #{d}"
     BOX.chdir(d) {
       `stat -c %a bin`.strip
-      .should == '770'
+      .should == '750'
     }
   end
 
