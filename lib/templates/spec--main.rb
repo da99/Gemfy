@@ -2,6 +2,7 @@
 require File.expand_path('spec/helper')
 require '{{name}}'
 require 'Bacon_Colored'
+require 'pry'
 
 
 # ======== Include the tests.
