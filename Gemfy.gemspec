@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake'
   s.add_development_dependency 'Bacon_Colored'
   s.add_development_dependency 'Bacon_FS'
+  s.add_development_dependency 'pry'
 
   s.rubyforge_project = "Gemfy"
 

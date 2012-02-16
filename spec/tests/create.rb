@@ -9,8 +9,9 @@ describe "Create a gem" do
   end
 
   it 'creates a dir' do
-    BOX.bin('create tim')
-    File.directory?(BOX.down('tim').dir).should.be == true
+    BOX.bin('create tim') { 
+      File.directory?('../tim').should.be == true
+    }
   end
   
   it 'creates a spec/tests/bin.rb file' do
@@ -27,29 +28,36 @@ describe "Create a gem" do
   end
   
   it 'adds Rake as a dependency' do
-    b = BOX.down('tim')
-    b.read("tim.gemspec")[%r!\w\.add_development_dependency .rake.!]
-    .should.not.be == nil
+    BOX.chdir('tim') {
+      File.read("tim.gemspec")[%r!\w\.add_development_dependency .rake.!]
+      .should.not.be == nil
+    }
   end  
   
   it 'adds Bacon as a dependency' do
-    b = BOX.down('tim')
-    b.read("tim.gemspec")[%r!\w\.add_development_dependency .bacon.!]
-    .should.not.be == nil
+    BOX.chdir('tim') {
+      File.read("tim.gemspec")[%r!\w\.add_development_dependency .bacon.!]
+      .should.not.be == nil
+    }
   end
   
   it 'does not transform name of gem: Bacon_Colored -> BaconColored' do
-    BOX.bin('create Bac_Col')
-    BOX.down('Bac_Col').read('*')[%r!.{0,10}BacCol.{0,10}!].should.be == nil
+    BOX.bin('create Bac_Col') { |b|
+      b.read('*')[%r!.{0,10}BacCol.{0,10}!] 
+      .should.be == nil
+    }
   end
   
   it 'only transforms the first letter for class name: uni_Arch => Uni_Arch' do
-    BOX.bin('create uni_Arch')
-    BOX.down('uni_Arch').read('*')[%r!Uni_arch!].should.be == nil
+    BOX.bin('create uni_Arch') { |b|
+      b.read('*')[%r!Uni_arch!].should.be == nil
+    }
   end
   
   it 'creates a .git directory' do
-    File.directory?(BOX.down('tim').down('.git').dir).should.be == true
+    BOX.chdir('tim') { 
+      File.directory?(".git").should.be == true
+    }
   end
   
   it 'creates a bin directory set to 750' do
@@ -67,11 +75,12 @@ describe ".gitignore after creation" do
   
   before do
     @ignore = lambda { |target| 
-      BOX.down('tim')
-        .read('.gitignore')
+      BOX.chdir('tim') { |b|
+        b.read('.gitignore')
         .split("\n")
         .map(&:strip)
         .detect { |line| target == line }
+      }
     }
   end
 
@@ -92,19 +101,3 @@ end # === describe .gitignore after creation
 
 
 
-
-
-__END__
-
-
-  
-  # it 'adds a gitorius remote to git repo' do
-  #   BOX.down('tim').shell("git remote -v")
-  #   .should == "gitorius\\tgit@gitorious.org:mu-gems/tim.git (fetch)\\ngitorius\\tgit@gitorious.org:mu-gems/tim.git (push)"
-  # end
-  # 
-  # it 'adds a gitorius remote by lower-casing the name' do
-  #   BOX.bin('create TIMM')
-  #   BOX.down('TIMM').shell("git remote -v")
-  #   .should == "gitorius\\tgit@gitorious.org:mu-gems/TIMM.git (fetch)\\ngitorius\\tgit@gitorious.org:mu-gems/TIMM.git (push)"
-  # end

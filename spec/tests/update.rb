@@ -2,137 +2,137 @@
 describe "Update a gem version" do
 
   it "won't tag git if there are pending files to be committed." do
-    BOX.bin "create Joey"
-    b = BOX.down('Joey')
-    lambda {
-      b.shell "echo 'test' > test.rb"
-      b.bin "bump_patch"
-    }.should.raise(RuntimeError)
-    .message.should.match %r!Commit first. \(Gemfy::Files_Uncomitted\)!
+    BOX.bin("create Joey") { |b|
+      lambda {
+        b.shell "echo 'test' > test.rb"
+        b.bin "bump_patch"
+      }.should.raise(RuntimeError)
+      .message.should.match %r!Commit first. \(Gemfy::Files_Uncomitted\)!
+    }
   end
   
   it "raises an error if there are files with :puts" do
-    BOX.bin "create puts"
-    b = BOX.down("puts")
-    b.append "lib/puts.rb", "puts 'something'"
-    lambda {
-      b.bin "bump_patch"
-    }.should.raise(RuntimeError)
-    .message.should.match %r!Files with puts: !
+    BOX.bin("create puts") { |b|
+      b.append "lib/puts.rb", "puts 'something'"
+      lambda {
+        b.bin "bump_patch"
+      }.should.raise(RuntimeError)
+      .message.should.match %r!Files with puts: !
+    }
   end
   
-  it "raises an error if there are files with 'binding.pry'" do
-    BOX.bin "create Bpry"
-    BOX.chdir("Bpry") {
-      File.write "lib/pry.rb", "binding.pry"
+  it "raises an error if there are files with #{'BINDING.PRY'.downcase}" do
+    BOX.bin("create Bpry") { |b|
+      File.write "lib/pry.rb", "BINDING.PRY".downcase
+
+      lambda {
+        b.bin "bump_patch"
+      }.should.raise(RuntimeError)
+      .message.should.match %r!Files with BINDING.pry: !i
     }
-    
-    lambda {
-      BOX.bin "bump_patch"
-    }.should.raise(RuntimeError)
-    .message.should.match %r!Files with binding.pry: !
   end
   
   it "raises an error if there are files with double tabs" do
-    BOX.bin "create tabs"
-    b = BOX.down("tabs")
-    b.append "spec/main.rb", "\t\t"
-    lambda {
-      b.bin "bump_patch"
-    }.should.raise(RuntimeError)
-    .message.should.match %r!Files with tabs: !
+    BOX.bin("create tabs") { |b|
+      b.append "spec/main.rb", "\t\t"
+      lambda {
+        b.bin "bump_patch"
+      }.should.raise(RuntimeError)
+      .message.should.match %r!Files with tabs: !
+    }
   end
 
   it "won't tag git if there are todos in .gemspec" do
-    BOX.bin "create todo01"
-    b = BOX.down('todo01')
-    lambda {
-      b.bin "bump_patch"
-    }.should.raise(RuntimeError)
-    .message.should.match %r!There are TODOs in todo01.gemspec!
-    
-    b.shell("git tag -l").should.be == ''
+    BOX.bin("create todo01") { |b|
+      lambda {
+        b.bin "bump_patch"
+      }.should.raise(RuntimeError)
+      .message.should.match %r!There are TODOs in todo01.gemspec!
+
+      b.shell("git tag -l").should.be == ''
+    }
   end
   
   it "won't tag git if there are fixmes in .gemspec" do
-    BOX.bin "create fixme01"
-    b = BOX.down('fixme01')
-    b.fix_todos
-    b.append "fixme01.gemspec", '# FIXME: '
-    b.git_commit 'Added a FIXME to gemspec file.'
-    lambda {
-      b.bin "bump_patch"
-    }.should.raise(RuntimeError)
-    .message.should.match %r!There are FIXMEs in fixme01.gemspec!
-    
-    b.shell("git tag -l").should.be == ''
+    BOX.bin("create fixme01") { |b|
+      b.fix_todos
+      b.append "fixme01.gemspec", '# FIXME: '
+      b.git_commit 'Added a FIXME to gemspec file.'
+      lambda {
+        b.bin "bump_patch"
+      }.should.raise(RuntimeError)
+      .message.should.match %r!There are FIXMEs in fixme01.gemspec!
+
+      b.shell("git tag -l").should.be == ''
+    }
   end
 
   it 'tags git after bump' do
-    b = BOX.down('Joey') 
-    b.fix_gemspec
-    
-    b.bin 'bump_minor'
-    b.shell( "git tag -l" ).should.be == "v0.1.0"
+    BOX.chdir('Joey')  { |b|
+      b.fix_gemspec
+
+      b.bin 'bump_minor'
+      b.shell( "git tag -l" ).should.be == "v0.1.0"
+    }
   end
   
   it 'raises error if previous commit was a tag' do
-    BOX.bin "create already_tagged"
-    b = BOX.down('already_tagged') 
-    b.fix_gemspec
-    
-    b.bin 'bump_minor'
-    lambda { b.bin 'bump_minor' }.should.raise(RuntimeError)
-    .message.should.match %r!Previous commit already tagged!
+    BOX.bin("create already_tagged") { |b|
+      b.fix_gemspec
+      b.bin 'bump_minor'
+      lambda { b.bin 'bump_minor' }.should.raise(RuntimeError)
+      .message.should.match %r!Previous commit already tagged!
+    }
   end
   
   it 'commits after bump' do
-    BOX.bin "create committed_bump"
-    b = BOX.down('committed_bump') 
-    b.fix_gemspec
-    b.bin 'bump_minor'
-    b.shell("git status")['nothing to commit'].should.be == 'nothing to commit'
+    BOX.bin("create committed_bump") { |b|
+      b.fix_gemspec
+      b.bin 'bump_minor'
+      b.shell("git status")['nothing to commit'].should.be == 'nothing to commit'
+    }
   end
 
   it 'bumps minor' do
-    BOX.bin "create bump_minor01"
-    b = BOX.down('bump_minor01') 
-    b.fix_gemspec
-    b.bin "bump_minor"
-    b.read("lib/bump_minor01/version.rb")[/\d.\d.\d/].should == "0.1.0"
+    BOX.bin("create bump_minor01") { |b|
+      b.fix_gemspec
+      b.bin "bump_minor"
+      b.read("lib/bump_minor01/version.rb")[/\d.\d.\d/].should == "0.1.0"
+    }
   end
 
   it 'bumps patch' do
-    BOX.bin "create bump_patch01"
-    b = BOX.down('bump_patch01') 
-    b.fix_gemspec
-    
-    b.bin "bump_patch"
-    b.read("lib/bump_patch01/version.rb")[/\d.\d.\d/].should == "0.0.2"
+    BOX.bin("create bump_patch01") { |b|
+      b.fix_gemspec
+      b.bin "bump_patch"
+      b.read("lib/bump_patch01/version.rb")[/\d.\d.\d/].should == "0.0.2"
+    }
   end
 
   it 'bumps major' do
-    BOX.bin "create major01"
-    b = BOX.down('major01') 
-    b.fix_gemspec
-    
-    b.bin "MaJoR"
-    b.read("lib/major01/version.rb")[/\d.\d.\d/].should == "1.0.0"
+    BOX.bin("create major01") { |b|
+      b.fix_gemspec
+      b.bin "MaJoR"
+      b.read("lib/major01/version.rb")[/\d.\d.\d/].should == "1.0.0"
+    }
   end
   
   it 'git tags major with "Bump version major: \\d.\\d.\\d"' do
-    b = BOX.down('major01') 
-    b.shell("git log -n 1 --oneline").should.match %r@Bump version major: \d\.\d\.\d@
+    BOX.chdir('major01') { |b|
+      b.shell("git log -n 1 --oneline").should.match %r@Bump version major: \d\.\d\.\d@
+    }
   end
 
   it 'adds version.rb to git after bump' do
-    b = BOX.down('Joey')
-    b.shell('git status')['nothing to commit'].should.be == 'nothing to commit'
+    BOX.chdir('Joey') { |b|
+      b.shell('git status')['nothing to commit'].should.be == 'nothing to commit'
+    }
   end
   
   it 'fails to bump version if Bacon specs are not met.' do
-    name = "Joey"
-    b = BOX.down( name )
+    name = "Joey_Fail"
+    BOX.bin("create #{name}")
+    b = BOX.chdir( name )
     old_tags = b.shell("git tag -l")
     File.open(b.dir + '/spec/tests/fail.rb', 'w') { |io|
       io.write %~
@@ -146,18 +146,19 @@ describe "Update a gem version" do
     
     b.shell "git add ."
     b.shell "git commit -m \"Added test.\""
-    lambda {
+    m = lambda {
       b.bin('bump_minor')
     }.should.raise(RuntimeError)
-    .message.should.match %r!\[FAILED\]\e\[0m\n\nBacon::Error: false.==\(true\) failed\n\t/tmp/Gemfy/[a-zA-Z0-9\-\_]+/#{name}/spec/tests/fail.rb:4!
+    
+    m.message.should.match %r!failed\n\t/tmp/Gemfy/[a-zA-Z0-9\-\_]+/#{name}/spec/tests/fail.rb:4!
       
     b.shell("git tag -l").should.be == old_tags
   end
   
   it 'applies command to all gems' do
     BOX.bin 'create Joey2'
-    b1 = BOX.down('Joey')
-    b2 = BOX.down('Joey2')
+    b1 = BOX.chdir('Joey')
+    b2 = BOX.chdir('Joey2')
     
     BOX.bin 'all add_depend rEstEr'
     b1.read('Joey.gemspec')['rEstEr'].should.be == 'rEstEr'
@@ -172,10 +173,11 @@ describe "Update a gem version" do
   end
   
   it 'does not add another dependency if it already exists' do
-    b = BOX.down('Joey')
-    b.bin 'add_depend rEstEr'
-    b.bin 'add_depend rEstEr'
-    b.read('Joey.gemspec').scan(%r!rEstEr!).should == ['rEstEr']
+    BOX.chdir('Joey') { |b|
+      b.bin 'add_depend rEstEr'
+      b.bin 'add_depend rEstEr'
+      b.read('Joey.gemspec').scan(%r!rEstEr!).should == ['rEstEr']
+    }
   end
   
 end # === describe Update a gem version

@@ -163,10 +163,10 @@ class Gemfy
     end
 
     pry_files = Dir.glob('**/*.rb').select { |file|
-      File.read(file)["binding.pry"]
+      File.read(file)["BINDING.PRY".downcase]
     }
     unless pry_files.empty?
-      raise Pry_Debugging, "Files with binding.pry: #{pry_files.join(", ")}"
+      raise Pry_Debugging, "Files with #{'BINDING.PRY'.downcase}: #{pry_files.join(", ")}"
     end
 
     previous = shell(%~ git log -n 1 --oneline --decorate=full ~)

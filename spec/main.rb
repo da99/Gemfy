@@ -9,7 +9,6 @@ class Box
   TMP      = "/tmp/#{GEM_NAME}"
   TEMP     = "#{TMP}/rand_#{rand(1000)}"
   BIN      = File.expand_path('.') + '/bin'
-  BINARY   = File.join(BIN, GEM_NAME.upcase)
 
   attr_reader :dir
   
@@ -19,12 +18,22 @@ class Box
       @name = ''
     else
       @name = name
-      @dir = File.join(TEMP, name)
+      @dir = File.join(TEMP, name.sub(TEMP,''))
     end
   end
 
-  def chdir path = nil
-    Dir.chdir(File.join *([dir, path].compact) ) { yield }
+  def chdir path = nil, &blok
+    new_path = File.join( *([dir, path].compact) )
+    b = Box.new(new_path)
+    return b if not blok
+      
+    Dir.chdir(new_path) { 
+      if blok.arity == 1
+        yield(b)
+      else
+        yield
+      end
+    }
   end
   
   def shell raw_cmd
@@ -74,12 +83,10 @@ class Box
       shell %! git add . && git add -u && git commit -m #{msg.inspect} !
   end
   
-  def bin raw_cmd
-    shell "#{BINARY} #{raw_cmd}"
-  end
-  
-  def down name
-    Box.new(File.join @name, name)
+  def bin raw_cmd, &blok
+    r = shell "bundle exec GEMFY #{raw_cmd}"
+    return r unless blok
+    chdir(raw_cmd.split.last,&blok)
   end
   
   def read file
