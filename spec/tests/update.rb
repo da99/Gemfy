@@ -2,8 +2,8 @@
 describe "Update a gem version" do
 
   it "won't tag git if there are pending files to be committed." do
-    BOX.bin "create joey"
-    b = BOX.down('joey')
+    BOX.bin "create Joey"
+    b = BOX.down('Joey')
     lambda {
       b.shell "echo 'test' > test.rb"
       b.bin "bump_patch"
@@ -20,7 +20,18 @@ describe "Update a gem version" do
     }.should.raise(RuntimeError)
     .message.should.match %r!Files with puts: !
   end
-
+  
+  it "raises an error if there are files with 'binding.pry'" do
+    BOX.bin "create Bpry"
+    BOX.chdir("Bpry") {
+      File.write "lib/pry.rb", "binding.pry"
+    }
+    
+    lambda {
+      BOX.bin "bump_patch"
+    }.should.raise(RuntimeError)
+    .message.should.match %r!Files with binding.pry: !
+  end
   
   it "raises an error if there are files with double tabs" do
     BOX.bin "create tabs"
@@ -58,7 +69,7 @@ describe "Update a gem version" do
   end
 
   it 'tags git after bump' do
-    b = BOX.down('joey') 
+    b = BOX.down('Joey') 
     b.fix_gemspec
     
     b.bin 'bump_minor'
@@ -115,12 +126,12 @@ describe "Update a gem version" do
   end
 
   it 'adds version.rb to git after bump' do
-    b = BOX.down('joey')
+    b = BOX.down('Joey')
     b.shell('git status')['nothing to commit'].should.be == 'nothing to commit'
   end
   
   it 'fails to bump version if Bacon specs are not met.' do
-    name = "joey"
+    name = "Joey"
     b = BOX.down( name )
     old_tags = b.shell("git tag -l")
     File.open(b.dir + '/spec/tests/fail.rb', 'w') { |io|
@@ -144,13 +155,13 @@ describe "Update a gem version" do
   end
   
   it 'applies command to all gems' do
-    BOX.bin 'create joey2'
-    b1 = BOX.down('joey')
-    b2 = BOX.down('joey2')
+    BOX.bin 'create Joey2'
+    b1 = BOX.down('Joey')
+    b2 = BOX.down('Joey2')
     
     BOX.bin 'all add_depend rEstEr'
-    b1.read('joey.gemspec')['rEstEr'].should.be == 'rEstEr'
-    b2.read('joey2.gemspec')['rEstEr'].should.be == 'rEstEr'
+    b1.read('Joey.gemspec')['rEstEr'].should.be == 'rEstEr'
+    b2.read('Joey2.gemspec')['rEstEr'].should.be == 'rEstEr'
   end
   
   it 'raises Invalid_Command if :bump_minor is applied to all gems' do
@@ -161,10 +172,10 @@ describe "Update a gem version" do
   end
   
   it 'does not add another dependency if it already exists' do
-    b = BOX.down('joey')
+    b = BOX.down('Joey')
     b.bin 'add_depend rEstEr'
     b.bin 'add_depend rEstEr'
-    b.read('joey.gemspec').scan(%r!rEstEr!).should == ['rEstEr']
+    b.read('Joey.gemspec').scan(%r!rEstEr!).should == ['rEstEr']
   end
   
 end # === describe Update a gem version

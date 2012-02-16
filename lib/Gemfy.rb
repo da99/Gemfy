@@ -12,6 +12,7 @@ class Gemfy
   Already_Tagged       = Class.new(RuntimeError)
   Tabbed_Files         = Class.new(RuntimeError)
   Puts_Files           = Class.new(RuntimeError)
+  Pry_Debugging        = Class.new(RuntimeError)
   
   class << self
     
@@ -150,15 +151,22 @@ class Gemfy
       !file['spec/'] && 
         File.read(file)[/puts[\s\(]/]
     }
-    if !puts_files.empty?
+    unless puts_files.empty?
       raise Puts_Files, "Files with puts: #{puts_files.join ", "}"
     end
     
     tabbed_files = Dir.glob("**/*.rb").select { |file|
       File.read(file)["\t\t"]
     }
-    if !tabbed_files.empty?
+    unless tabbed_files.empty?
       raise Tabbed_Files, "Files with tabs: #{tabbed_files.join(", ")}"
+    end
+
+    pry_files = Dir.glob('**/*.rb').select { |file|
+      File.read(file)["binding.pry"]
+    }
+    unless pry_files.empty?
+      raise Pry_Debugging, "Files with binding.pry: #{pry_files.join(", ")}"
     end
 
     previous = shell(%~ git log -n 1 --oneline --decorate=full ~)
