@@ -3,6 +3,8 @@ require File.expand_path('spec/helper')
 require 'Gemfy'
 require 'Bacon_Colored'
 require 'Bacon_FS'
+require 'pry'
+
 class Box
   
   GEM_NAME = File.expand_path('.').split('/').reverse.detect { |f| !f.strip.empty? }
@@ -80,7 +82,7 @@ class Box
   end
   
   def git_commit msg
-      shell %! git add . && git add -u && git commit -m #{msg.inspect} !
+    shell %! git add . && git add -u && git commit -m #{msg.inspect} !
   end
   
   def bin raw_cmd, &blok

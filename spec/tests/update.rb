@@ -13,11 +13,31 @@ describe "Update a gem version" do
   
   it "raises an error if there are files with :puts" do
     BOX.bin("create puts") { |b|
+      
       b.append "lib/puts.rb", "puts 'something'"
+      
       lambda {
         b.bin "bump_patch"
-      }.should.raise(RuntimeError)
+      }
+      .should.raise(RuntimeError)
       .message.should.match %r!Files with puts: !
+      
+    }
+  end
+  
+  it "ignores files with :puts if config/allow_puts.txt exists" do
+    BOX.bin("create Allow_puts") { |b|
+      
+      b.append "lib/Allow_puts.rb", "puts 'something'"
+      `mkdir -p config`
+      File.write "config/allow_puts.txt", ""
+      File.write "Allow_puts.gemspec", File.read('Allow_puts.gemspec').gsub('TODO', '')
+      `git add . && git commit -m "Puts allowed."`
+      lambda {
+        b.bin "bump_patch"
+      }
+      .should.not.raise(RuntimeError)
+      
     }
   end
   

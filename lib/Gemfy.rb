@@ -147,12 +147,14 @@ class Gemfy
   end
 
   def version_bump type
-    puts_files = Dir.glob("**/*.rb").select { |file|
-      !file['spec/'] && 
-        File.read(file)[/puts[\s\(]/]
-    }
-    unless puts_files.empty?
-      raise Puts_Files, "Files with puts: #{puts_files.join ", "}"
+    unless File.exists?('config/allow_puts.txt')
+      puts_files = Dir.glob("**/*.rb").select { |file|
+        !file['spec/'] && 
+          File.read(file)[/puts[\s\(]/]
+      }
+      unless puts_files.empty?
+        raise Puts_Files, "Files with puts: #{puts_files.join ", "}"
+      end
     end
     
     tabbed_files = Dir.glob("**/*.rb").select { |file|
