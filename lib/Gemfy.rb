@@ -248,6 +248,7 @@ class Gemfy
     print "\nPushing gem..."
     shell "gem push #{name}-#{version}.gem"
     shell "rm #{name}-#{version}.gem"
+    shell "git push"
     true
   end
   
