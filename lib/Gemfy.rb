@@ -45,7 +45,7 @@ class Gemfy
   end
   
   def git_config name
-    val = shell("git config --get --global user.#{name}")
+    val = quiet_shell("git config --get --global user.#{name}")
     if val.empty?
       raise Missing_Value, "git user.#{name}"
     end
@@ -65,13 +65,18 @@ class Gemfy
     exec "cat #{file} | redcarpet | bcat"
   end
 
-  def shell cmd, msg = nil
-    print cmd
-    print(msg, "\n") if msg
+  def quiet_shell cmd
     val = `#{cmd} 2>&1`.to_s.strip
     if $?.exitstatus != 0
       raise Failed_Shell_Command, "Results:\n#{val}"
     end
+    val
+  end
+
+  def shell cmd, msg = nil
+    print cmd
+    print(msg, "\n") if msg
+    val = quiet_shell(cmd)
     print val
     val
   end
