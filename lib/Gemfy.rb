@@ -59,6 +59,12 @@ class Gemfy
     }
   end
 
+  def readme
+    file = "README.md"
+    raise ArgumentError, "#{file} not found" unless File.exists?(file)
+    exec "cat #{file} | redcarpet | bcat"
+  end
+
   def shell cmd, msg = nil
     print cmd
     print(msg, "\n") if msg
