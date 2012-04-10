@@ -61,8 +61,41 @@ class Gemfy
 
   def readme
     file = "README.md"
+    file = File.expand_path("../Dahistory/README.md")
     raise ArgumentError, "#{file} not found" unless File.exists?(file)
-    exec "cat #{file} | redcarpet | bcat"
+    
+    tmp_dir = "/tmp/Gemfy_Markdown"
+    tmp = "#{tmp_dir}/file.#{rand 1000}.md"
+    `mkdir -p #{tmp_dir}`
+    
+    File.write(tmp, %~
+<html>
+<head>
+  <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+  <style type="text/css">
+    p, ul, ol {
+      font-size: 20px;
+      line-height: 24px;
+      max-width: 900px;
+    }
+    code {
+      font-size: 16px;
+      background: #DAF0E6;
+      color: black;
+      display: block;
+      padding: 8px 8px;
+      border-radius: 3px;
+    }
+  </style>
+  <title>#{file}</title>
+</head>
+  <body>
+    #{ `cat #{file} | redcarpet `}
+  </body>
+</html
+    ~)
+    
+    exec "cat #{tmp} | bcat -h"
   end
 
   def quiet_shell cmd
