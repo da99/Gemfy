@@ -128,6 +128,7 @@ class Gemfy
       NAME.gemspec
       NONE.gitignore
       Rakefile.tmpl
+      README.md
       spec--helper.rb
       spec--main.rb
       spec--tests--bin.rb
