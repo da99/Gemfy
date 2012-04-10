@@ -61,7 +61,6 @@ class Gemfy
 
   def readme
     file = "README.md"
-    file = File.expand_path("../Dahistory/README.md")
     raise ArgumentError, "#{file} not found" unless File.exists?(file)
     
     tmp_dir = "/tmp/Gemfy_Markdown"
