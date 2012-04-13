@@ -296,6 +296,16 @@ class Gemfy
     true
   end
   
+  def origin short_name
+    name = if short_name.downcase["git"]
+             "github:"
+           else
+             "ssh://bitbucket/"
+           end
+    
+    shell "git remote add origin #{name}da99/Update_Site_Cookbooks.git"
+  end
+
   def write filename
     templ = File.read(template(filename))
     contents = templ
