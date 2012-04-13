@@ -1,5 +1,5 @@
 
-{class_name}
+{escape_underscore_class_name}
 ================
 
 A Ruby\_gem.
@@ -9,7 +9,7 @@ Installation
 
     gem '{class_name}'
 
-Useage
+Usage
 ------
 
     require "{class_name}"
