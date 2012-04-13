@@ -302,7 +302,8 @@ class Gemfy
       .gsub('{{name}}', name)
       .gsub('{name}', name)
       .gsub('{class_name}', name.sub( %r!.! ) { |c| c.capitalize } )
-      .gsub('{escaped_underscore_class_name}', name.sub( %r!.! ) { |c| c.capitalize.gsub("_", "\\_") } )
+      .gsub('{escape_underscore_class_name}',  name.sub( %r!.! ) { |c| c.capitalize }.gsub("_", "\\_") )
+      .gsub('{escaped_underscore_class_name}', name.sub( %r!.! ) { |c| c.capitalize }.gsub("_", "\\_") )
       .gsub('{email}', email)
       .gsub('{username}', username)
     
