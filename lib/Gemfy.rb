@@ -303,7 +303,7 @@ class Gemfy
              "ssh://bitbucket/"
            end
     
-    shell "git remote add origin #{name}da99/Update_Site_Cookbooks.git"
+    shell "git remote add origin #{name}da99/#{File.basename `pwd`.strip}.git"
   end
 
   def write filename
