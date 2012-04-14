@@ -297,13 +297,15 @@ class Gemfy
   end
   
   def origin short_name
-    name = if short_name.downcase["git"]
-             "github:"
-           else
-             "ssh://bitbucket/"
-           end
+    if short_name.downcase["git"]
+      name = "github:"
+      dir  = "#{File.basename `pwd`.strip}"
+    else
+      name = "ssh://bitbucket/"
+      dir  = "#{File.basename(`pwd`.strip).downcase}"
+    end
     
-    shell "git remote add origin #{name}da99/#{File.basename `pwd`.strip}.git"
+    shell "git remote add origin #{name}da99/#{dir}.git"
   end
 
   def write filename
