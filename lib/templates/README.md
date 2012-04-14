@@ -7,7 +7,7 @@ A Ruby\_gem.
 Installation
 ------------
 
-    gem install '{class_name}'
+    gem install {class_name}
 
 Usage
 ------
