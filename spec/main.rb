@@ -86,7 +86,7 @@ class Box
   end
   
   def bin raw_cmd, &blok
-    r = shell "bundle exec GEMFY #{raw_cmd}"
+    r = shell "bundle exec Gemfy #{raw_cmd}"
     return r unless blok
     chdir(raw_cmd.split.last,&blok)
   end
