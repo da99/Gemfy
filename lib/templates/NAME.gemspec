@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.version     = {name}::VERSION
   s.authors     = ["{username}"]
   s.email       = ["{email}"]
-  s.homepage    = "https://github.com/{username}/#{name}"
+  s.homepage    = "https://github.com/{username}/{name}"
   s.summary     = %q{TODO: Write a gem summary}
   s.description = %q{TODO: Write a gem description}
 
