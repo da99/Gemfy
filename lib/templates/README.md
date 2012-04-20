@@ -2,7 +2,7 @@
 {escape_underscore_class_name}
 ================
 
-A Ruby\_gem.
+A Ruby gem.
 
 Installation
 ------------
