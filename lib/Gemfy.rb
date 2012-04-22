@@ -59,6 +59,11 @@ class Gemfy
     }
   end
 
+  def log *raw_args
+    args = raw_args.map { |s| s[' '] ? s.inspect : s }
+    shell "git log -n 5 --oneline #{ args.join ' '}"
+  end
+
   def readme
     file = "README.md"
     raise ArgumentError, "#{file} not found" unless File.exists?(file)
