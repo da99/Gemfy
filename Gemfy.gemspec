@@ -28,4 +28,5 @@ Gem::Specification.new do |s|
   # specify any dependencies here; for example:
   s.add_runtime_dependency "redcarpet"
   s.add_runtime_dependency "bcat"
+  s.add_runtime_dependency "Exit_0"
 end

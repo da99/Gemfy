@@ -1,5 +1,7 @@
 require "Gemfy/version"
 require 'Git_Repo'
+require 'Exit_0'
+
 class Gemfy
 
   Missing_Value        = Class.new(RuntimeError)
@@ -118,6 +120,22 @@ class Gemfy
     val
   end
   
+  def create_bin type, name = nil
+    name ||= self.name
+    path = "bin/#{name}"
+    raise ArgumentError, "File already exists: #{path}" if File.exists?(path)
+
+    Exit_0 %^
+      echo "#!/usr/bin/env #{type}" >> "#{path}"
+      echo "# -*- #{type} -*-"      >> "#{path}"
+      echo "# "                     >> "#{path}"
+      echo ""                       >> "#{path}" 
+      echo ""                       >> "#{path}"
+      chmod +x                         "#{path}"
+    ^
+    print "#{path}\n"
+  end
+
   def create
     raise(Already_Exists, name) if File.directory?(File.expand_path name)
     raise("Name can not be == to 'create'") if name.to_s.downcase == 'create'

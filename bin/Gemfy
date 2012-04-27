@@ -5,12 +5,11 @@
 
 require "Gemfy"
 
-case ARGV.first
-when 'create'
+if ARGV.first == 'create' && ARGV.size == 2
   raise "Too many arguments: #{ARGV}" unless ARGV.size == 2
   g = Gemfy.new(ARGV[1])
   g.create
-when 'bacon'
+elsif ARGV.first == 'bacon'
   ARGV.shift
   
   # From:
@@ -25,10 +24,14 @@ when 'bacon'
   cmd = "bundle exec bacon spec/main.rb #{new_args}"
   puts cmd
   exec cmd
-when 'all'
+  
+elsif ARGV.first == 'all'
   ARGV.shift
   Gemfy.all *ARGV
+
 else
   g = Gemfy.new(File.basename(File.expand_path('.')))
   g.send *ARGV
-end
+  
+end # === if
+
