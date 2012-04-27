@@ -297,7 +297,12 @@ class Gemfy
     print "\nPushing gem..."
     shell "gem push #{name}-#{version}.gem"
     shell "rm #{name}-#{version}.gem"
-    shell "git push origin v#{version}" if `git remote -v`["origin"]
+    
+    if `git remote -v`["origin"]
+      shell "git push origin v#{version}" 
+      shell "git push" 
+    end
+    
     true
   end
   
