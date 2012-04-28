@@ -63,7 +63,7 @@ class Gemfy
 
   def log *raw_args
     args = raw_args.map { |s| s[' '] ? s.inspect : s }
-    shell "git log -n 5 --oneline #{ args.join ' '}"
+    shell "git log -n 5 --oneline --decorate=short #{ args.join ' '}"
   end
 
   def readme
