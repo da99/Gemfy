@@ -334,6 +334,7 @@ class Gemfy
     end
     
     shell "git remote add origin #{name}da99/#{dir}.git"
+    shell "git push -u origin"
   end
 
   def write filename
