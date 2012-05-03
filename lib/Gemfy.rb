@@ -397,6 +397,11 @@ class Gemfy
 
   # Use ENV['pattern']= in place of 'bacon file -t pattern'
   def bacon args = []
+    cmd = bacon_cmd args
+    shell cmd, "\nPlease wait while tests run..."
+  end # === def bacon
+  
+  def bacon_cmd args=[]
     main = [
       Dir.glob("./spec*/**/main.rb"),
       Dir.glob("./spec*/lib*/**/main.rb")
@@ -410,9 +415,8 @@ class Gemfy
     end
     
     cmd = "bundle exec bacon #{main} #{args.map(&:inspect).join ' '}"
-    shell cmd, "\nPlease wait while tests run..."
-  end # === def bacon
-  
+  end
+
   def git_push
     repo   = ENV['repo'] || 'gitorious'
     branch = ENV['branch'] || 'master'
