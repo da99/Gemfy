@@ -6,6 +6,7 @@ describe "Update a gem version" do
       lambda {
         b.shell "echo 'test' > test.rb"
         b.bin "bump_patch"
+
       }.should.raise(RuntimeError)
       .message.should.match %r!Commit first. \(Gemfy::Files_Uncomitted\)!
     }
@@ -54,7 +55,7 @@ describe "Update a gem version" do
   
   it "raises an error if there are files with double tabs" do
     BOX.bin("create tabs") { |b|
-      b.append "spec/main.rb", "\t\t"
+      b.append "spec/lib/main.rb", "\t\t"
       lambda {
         b.bin "bump_patch"
       }.should.raise(RuntimeError)
@@ -154,7 +155,7 @@ describe "Update a gem version" do
     BOX.bin("create #{name}")
     b = BOX.chdir( name )
     old_tags = b.shell("git tag -l")
-    File.open(b.dir + '/spec/tests/fail.rb', 'w') { |io|
+    File.open(b.dir + '/spec/fail.rb', 'w') { |io|
       io.write %~
         describe 'fails' do
           it 'fails' do
@@ -170,7 +171,7 @@ describe "Update a gem version" do
       b.bin('bump_minor')
     }.should.raise(RuntimeError)
     
-    m.message.should.match %r!failed\n\t/tmp/Gemfy/[a-zA-Z0-9\-\_]+/#{name}/spec/tests/fail.rb:4!
+    m.message.should.match %r!failed\n\t/tmp/Gemfy/[a-zA-Z0-9\-\_]+/#{name}/spec/fail.rb:4!
       
     b.shell("git tag -l").should.be == old_tags
   end

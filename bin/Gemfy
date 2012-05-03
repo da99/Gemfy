@@ -5,32 +5,23 @@
 
 require "Gemfy"
 
+This_Folder = File.basename(File.expand_path '.' )
 if ARGV.first == 'create' && ARGV.size == 2
   raise "Too many arguments: #{ARGV}" unless ARGV.size == 2
   g = Gemfy.new(ARGV[1])
   g.create
+  
 elsif ARGV.first == 'bacon'
   ARGV.shift
-  
-  # From:
-  # http://stackoverflow.com/a/2966988/841803
-  new_args = ARGV.map { |ele|  
-    if ele[' ']
-      ele.inspect
-    else
-      ele
-    end
-  }.join(' ')
-  cmd = "bundle exec bacon spec/main.rb #{new_args}"
-  puts cmd
-  exec cmd
-  
+  g = Gemfy.new This_Folder
+  g.bacon ARGV
+ 
 elsif ARGV.first == 'all'
   ARGV.shift
   Gemfy.all *ARGV
 
 else
-  g = Gemfy.new(File.basename(File.expand_path('.')))
+  g = Gemfy.new This_Folder
   g.send *ARGV
   
 end # === if

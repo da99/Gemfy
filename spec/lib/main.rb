@@ -1,5 +1,5 @@
 
-require File.expand_path('spec/helper')
+require './spec/lib/helper'
 require 'Gemfy'
 require 'Bacon_Colored'
 require 'Bacon_FS'
@@ -86,7 +86,7 @@ class Box
   end
   
   def bin raw_cmd, &blok
-    r = shell "bundle exec Gemfy #{raw_cmd}"
+    r = shell "Gemfy #{raw_cmd}"
     return r unless blok
     chdir(raw_cmd.split.last,&blok)
   end
@@ -126,7 +126,7 @@ Dir.glob("#{Box::TMP}/*").each { |obj|
 if ARGV.size > 1 && ARGV[1, ARGV.size - 1].detect { |a| File.exists?(a) }
   # Do nothing. Bacon grabs the file.
 else
-  Dir.glob('spec/tests/*.rb').each { |file|
-    require File.expand_path(file.sub('.rb', '')) if File.file?(file)
+  Dir.glob('./spec/*.rb').each { |file|
+    require file.sub('.rb', '') if File.file?(file)
   }
 end

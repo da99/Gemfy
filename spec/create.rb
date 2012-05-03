@@ -14,9 +14,9 @@ describe "Create a gem" do
     }
   end
   
-  it 'creates a spec/tests/bin.rb file' do
+  it 'creates a spec/bin.rb file' do
     BOX.chdir('tim') {
-      File.file?("spec/tests/bin.rb").should == true
+      File.file?("spec/bin.rb").should == true
     }
   end
   

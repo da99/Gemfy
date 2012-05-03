@@ -140,7 +140,7 @@ class Gemfy
     raise(Already_Exists, name) if File.directory?(File.expand_path name)
     raise("Name can not be == to 'create'") if name.to_s.downcase == 'create'
     shell "mkdir -p #{folder}/lib/#{name}"
-    shell "mkdir -p #{folder}/spec/lib"
+    shell "mkdir -p #{folder}/spec/tests"
     shell "mkdir -p #{folder}/bin"
     shell "chmod 750 #{folder}/bin"
     
@@ -152,8 +152,9 @@ class Gemfy
       NONE.gitignore
       Rakefile.tmpl
       README.md
-      spec--lib--main.rb
-      spec--bin.rb
+      spec--helper.rb
+      spec--main.rb
+      spec--tests--bin.rb
     }.each { |file_name| 
       write file_name
     }
@@ -241,13 +242,11 @@ class Gemfy
     if previous['tag: refs/tags/v']
       raise Already_Tagged, "Previous commit already tagged: #{previous}"
     end
-    
-    bacon
+    shell "cd #{folder} && bundle exec ruby spec/main.rb", "Please wait while tests are running..."
     
     if repo.staged?
       raise Files_Uncomitted, "Commit first."
     end
-
     check_gemspec
     
     new_ver = case type
@@ -396,21 +395,12 @@ class Gemfy
   end
 
   # Use ENV['pattern']= in place of 'bacon file -t pattern'
-  def bacon args = []
-    main = [
-      Dir.glob("./spec*/**/main.rb"),
-      Dir.glob("./spec*/lib*/**/main.rb")
-    ].flatten.first
-
-    raise ArgumentError, "No spec main.rb file found." unless main
-
+  def bacon
+    args = ''
     if ENV['pattern']
-      args << " -t "
-      args << "#{ENV['pattern'].inspect}"
+      args << " -t #{ENV['pattern'].inspect}"
     end
-    
-    cmd = "bundle exec bacon #{main} #{args.map(&:inspect).join ' '}"
-    shell cmd, "\nPlease wait while tests run..."
+    shell "bundle exec bacon spec/main.rb #{args}"
   end # === def bacon
   
   def git_push

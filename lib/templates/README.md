@@ -23,7 +23,7 @@ Run Tests
     git clone git@github.com:da99/{class_name}.git
     cd {class_name}
     bundle update
-    bundle exec bacon spec/main.rb
+    bundle exec bacon spec/lib/main.rb
 
 "I hate writing."
 -----------------------------
