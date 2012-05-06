@@ -14,7 +14,9 @@ if ARGV.first == 'create' && ARGV.size == 2
 elsif ARGV.first == 'bacon'
   ARGV.shift
   g = Gemfy.new This_Folder
-  exec g.bacon_cmd ARGV
+  c = g.bacon_cmd(ARGV)
+  puts "\n", c, "\n"
+  exec c
  
 elsif ARGV.first == 'all'
   ARGV.shift
