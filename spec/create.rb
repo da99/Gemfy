@@ -69,6 +69,19 @@ describe "Create a gem" do
     }
   end
 
+  it 'create a gem with passing specs' do
+    BOX.bin('create Pass_Bacon') {
+      Bundler.with_clean_env {
+        should.not.raise {
+          Exit_0 {
+            `bundle exec bacon spec/lib/main.rb`
+            $?
+          }
+        }
+      }
+    }
+  end
+
 end # === describe Create a gem
 
 describe ".gitignore after creation" do
