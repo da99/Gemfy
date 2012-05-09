@@ -5,7 +5,7 @@ require "{name}/version"
 
 Gem::Specification.new do |s|
   s.name        = "{name}"
-  s.version     = {name}::VERSION
+  s.version     = {class_name}_version
   s.authors     = ["{username}"]
   s.email       = ["{email}"]
   s.homepage    = "https://github.com/{username}/{name}"

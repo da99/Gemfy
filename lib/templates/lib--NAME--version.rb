@@ -1,3 +1,1 @@
-class {class_name}
-  VERSION = "0.0.1"
-end
+{class_name}_Version = "0.0.1"
