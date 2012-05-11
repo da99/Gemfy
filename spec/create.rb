@@ -20,6 +20,12 @@ describe "Create a gem" do
     }
   end
   
+  it 'creates a spec/NAME.rb file' do
+    BOX.chdir('tim') {
+      File.file?("spec/tim.rb").should == true
+    }
+  end
+  
   it 'raises Already_Exists when folder exists' do
     lambda {
       BOX.bin('create tim')

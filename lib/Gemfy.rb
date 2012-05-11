@@ -154,6 +154,7 @@ class Gemfy
       README.md
       spec--lib--main.rb
       spec--bin.rb
+      spec--NAME.rb
     }.each { |file_name| 
       write file_name
     }
