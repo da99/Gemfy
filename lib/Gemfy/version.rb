@@ -1,3 +1,3 @@
 class Gemfy
-  VERSION = "1.7.7"
+  VERSION = "1.8.0"
 end
