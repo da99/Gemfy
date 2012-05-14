@@ -75,7 +75,7 @@ describe "Create a gem" do
     }
   end
 
-  it 'create a gem with passing specs' do
+  it 'creates a gem with passing specs' do
     BOX.bin('create Pass_Bacon') {
       Bundler.with_clean_env {
         should.not.raise {

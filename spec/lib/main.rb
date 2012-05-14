@@ -1,5 +1,16 @@
+require 'rubygems'
+require 'bundler'
+begin
+  Bundler.setup(:default, :development)
+rescue Bundler::BundlerError => e
+  $stderr.puts e.message
+  $stderr.puts "Run `bundle install` to install missing gems"
+  exit e.status_code
+end
+require 'bacon'
 
-require './spec/lib/helper'
+Bacon.summary_on_exit
+
 require 'Gemfy'
 require 'Bacon_Colored'
 require 'Bacon_FS'
@@ -39,10 +50,14 @@ class Box
   end
   
   def shell raw_cmd
-    cmd = raw_cmd.strip
+    cmd  = raw_cmd.strip
     raise "Invalid characters: #{cmd}" if cmd[/\r|\n/]
     full = "cd #{dir} && #{cmd} 2>&1"
-    val = `#{full}`.to_s.strip
+    val  = nil
+    Bundler.with_clean_env {
+      val = `#{full}`.to_s.strip
+    }
+    
     if $?.exitstatus != 0
       raise "Failed: #{full} -- Results:\n#{val}"
     end
