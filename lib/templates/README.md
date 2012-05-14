@@ -25,9 +25,9 @@ Run Tests
     bundle update
     bundle exec bacon spec/lib/main.rb
 
-"I hate writing."
+Know of a better way?
 -----------------------------
 
 If you know of existing software that makes the above redundant,
-please tell me. The last thing I want to do is maintain code.
+please tell me.
 
